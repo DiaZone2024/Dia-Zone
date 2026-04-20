@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>DiaZone Login</title>
+  <title>Login - Dia Zone</title>
   
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
   <script src="https://telegram.org/js/telegram-web-app.js?62"></script>
@@ -24,8 +25,6 @@
       --btn-hover: #1e293b;
       --error-bg: #fee2e2;
       --error-text: #b91c1c;
-      --warning-bg: #fef9e3;
-      --warning-text: #92400e;
     }
     body.dark {
       --bg-body: linear-gradient(135deg, #0f172a 0%, #1e1b2e 100%);
@@ -39,8 +38,6 @@
       --btn-hover: #2563eb;
       --error-bg: #7f1d1d;
       --error-text: #fecaca;
-      --warning-bg: #451a03;
-      --warning-text: #fbbf24;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.3s ease, color 0.2s ease, border-color 0.2s ease; }
     body { font-family: 'Inter', sans-serif; background: var(--bg-body); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem; }
@@ -70,7 +67,7 @@
 <div class="login-card">
   <h1>Dia Zone</h1>
   <form id="loginForm">
-    <div class="input-group"><label>Phone / Email / Username</label><input type="text" id="username" placeholder="Phone, email or username" autocomplete="off"></div>
+    <div class="input-group"><label>Email</label><input type="email" id="email" placeholder="your@email.com" autocomplete="off"></div>
     <div class="input-group"><label>Password</label><input type="password" id="password" placeholder="Password"></div>
     <button type="submit" class="btn-primary" id="loginBtn">Login</button>
   </form>
@@ -81,7 +78,6 @@
 </div>
 
 <script>
-  // --- Firebase Configuration ---
   const firebaseConfig = {
     apiKey: "AIzaSyB8iE6D3N7X7qZxR9kLmNpQrStUvWxYz123456",
     authDomain: "dia-zone.firebaseapp.com",
@@ -95,6 +91,7 @@
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
   }
+  const auth = firebase.auth();
   const db = firebase.database();
 
   const loginForm = document.getElementById('loginForm');
@@ -103,59 +100,56 @@
 
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const userInput = document.getElementById('username').value.trim();
-    const passInput = document.getElementById('password').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
 
     errorDiv.classList.remove('show');
     
-    if (!userInput || !passInput) {
-      showError('Please enter both username/phone/email and password');
+    if (!email || !password) {
+      showError('Please enter both email and password');
       return;
     }
 
     loginBtn.disabled = true;
-    loginBtn.innerText = 'Checking...';
+    loginBtn.innerText = 'Logging in...';
 
     try {
-      // Get all users from Firebase
-      const snapshot = await db.ref('users').once('value');
-      let foundUser = null;
-      let userKey = null;
-
-      // Search for user by phone, email, or name
-      snapshot.forEach((childSnapshot) => {
-        const userData = childSnapshot.val();
-        if (userData.phone === userInput || 
-            userData.email === userInput || 
-            userData.name === userInput) {
-          if (userData.password === passInput) {
-            foundUser = userData;
-            userKey = childSnapshot.key;
-          }
-        }
-      });
-
-      if (foundUser) {
-        // Check if user is suspended
-        if (foundUser.status === 'Suspended') {
-          showError('Your account has been suspended. Please contact admin.');
-        } else {
-          // Login Success - Save user data with ID
-          foundUser.id = userKey;
-          foundUser.userId = userKey;
-          localStorage.setItem('diaZoneUser', JSON.stringify(foundUser));
-          sessionStorage.setItem('diaZoneUser', JSON.stringify(foundUser));
-          
-          console.log('Login successful for user:', foundUser.name);
-          window.location.href = 'dashboard.html';
-        }
-      } else {
-        showError('Invalid username/phone/email or password');
+      const userCredential = await auth.signInWithEmailAndPassword(email, password);
+      const user = userCredential.user;
+      
+      const snapshot = await db.ref('users/' + user.uid).once('value');
+      const userData = snapshot.val();
+      
+      if (!userData) {
+        showError('User data not found');
+        await auth.signOut();
+        return;
       }
+      
+      if (userData.status === 'Suspended') {
+        showError('Your account has been suspended. Please contact admin.');
+        await auth.signOut();
+        return;
+      }
+      
+      userData.id = user.uid;
+      userData.userId = user.uid;
+      localStorage.setItem('diaZoneUser', JSON.stringify(userData));
+      sessionStorage.setItem('diaZoneUser', JSON.stringify(userData));
+      
+      window.location.href = 'dashboard.html';
+      
     } catch (error) {
       console.error('Login error:', error);
-      showError('Connection error. Please check your internet connection.');
-    } finally {
+      let errorMsg = 'Invalid email or password';
+      if (error.code === 'auth/user-not-found') {
+        errorMsg = 'No account found with this email';
+      } else if (error.code === 'auth/wrong-password') {
+        errorMsg = 'Incorrect password';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMsg = 'Invalid email format';
+      }
+      showError(errorMsg);
       loginBtn.disabled = false;
       loginBtn.innerText = 'Login';
     }
@@ -164,6 +158,10 @@
   function showError(msg) {
     errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${msg}`;
     errorDiv.classList.add('show');
+    setTimeout(() => {
+      loginBtn.disabled = false;
+      loginBtn.innerText = 'Login';
+    }, 2000);
   }
 
   document.getElementById('registerRedirect').addEventListener('click', (e) => {
