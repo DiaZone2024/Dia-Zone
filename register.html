@@ -9,13 +9,14 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
-  <!-- EmailJS SDK -->
+  <!-- EmailJS SDK - Make sure this is included -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
   <script src="https://telegram.org/js/telegram-web-app.js?62"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
+    /* CSS အတူတူပါ - နေရာချွေတာရန် ချန်လှပ်ထားပါတယ် */
     :root {
       --bg-body: linear-gradient(145deg, #eef2f9 0%, #e2e8f0 100%);
       --bg-card: white;
@@ -109,7 +110,6 @@
       <input type="password" id="confirmPassword" placeholder="Confirm password">
     </div>
     
-    <!-- OTP Section -->
     <div class="input-row">
       <label>Email Verification <span class="required">*</span></label>
       <div class="otp-group">
@@ -147,8 +147,13 @@
   const db = firebase.database();
 
   // ============ EMAILJS CONFIGURATION ============
-  // Initialize EmailJS with Public Key
-  emailjs.init("w6UmVAyBh9bh_1H4R");
+  // Make sure EmailJS is loaded before initializing
+  if (typeof emailjs !== 'undefined') {
+    emailjs.init("w6UmVAyBh9bh_1H4R");
+    console.log("EmailJS initialized successfully");
+  } else {
+    console.error("EmailJS not loaded! Check your internet connection.");
+  }
 
   // ============ EMAIL OTP SYSTEM ============
   let currentEmail = '';
@@ -163,17 +168,14 @@
   const emailInput = document.getElementById('email');
   const fullNameInput = document.getElementById('fullName');
 
-  // Generate random 6-digit OTP
   function generateOTP() {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
 
-  // Send OTP via EmailJS
   async function sendOTPToEmail(email, userName) {
     const otp = generateOTP();
     generatedOtp = otp;
     
-    // Store OTP in sessionStorage with expiry (5 minutes)
     const otpData = {
       code: otp,
       email: email,
@@ -181,10 +183,16 @@
     };
     sessionStorage.setItem('emailOTP', JSON.stringify(otpData));
     
+    // Check if EmailJS is available
+    if (typeof emailjs === 'undefined') {
+      console.error("EmailJS not available");
+      return false;
+    }
+    
     try {
       const result = await emailjs.send(
-        'service_taubudq',        // Service ID
-        'template_ohzh2c4',       // Template ID
+        'service_taubudq',
+        'template_ohzh2c4',
         {
           to_email: email,
           otp_code: otp,
@@ -194,12 +202,11 @@
       console.log('Email sent successfully:', result);
       return true;
     } catch(error) {
-      console.error('EmailJS error:', error);
+      console.error('EmailJS error details:', error);
       return false;
     }
   }
 
-  // Send OTP button click
   sendOtpBtn.addEventListener('click', async () => {
     const email = emailInput.value.trim();
     const userName = fullNameInput.value.trim() || 'User';
@@ -211,7 +218,6 @@
       return;
     }
     
-    // Validate email format
     const emailRegex = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
     if (!emailRegex.test(email)) {
       otpStatus.textContent = 'Please enter a valid email address';
@@ -236,7 +242,7 @@
       otpCodeInput.disabled = false;
       otpCodeInput.focus();
     } else {
-      otpStatus.textContent = '✗ Failed to send OTP. Please try again.';
+      otpStatus.textContent = '✗ Failed to send OTP. Please check console for error.';
       otpStatus.style.background = '#ef4444';
       otpStatus.style.color = 'white';
       sendOtpBtn.disabled = false;
@@ -253,7 +259,6 @@
     sendOtpBtn.textContent = 'Send OTP';
   });
   
-  // Resend OTP button click
   resendOtpBtn.addEventListener('click', async () => {
     if (!currentEmail) {
       alert('Please enter your email first');
@@ -287,7 +292,6 @@
     sendOtpBtn.textContent = 'Send OTP';
   });
   
-  // Verify OTP on input
   otpCodeInput.addEventListener('input', () => {
     const enteredCode = otpCodeInput.value.trim();
     const storedData = sessionStorage.getItem('emailOTP');
@@ -349,7 +353,6 @@
     const pwd = document.getElementById('regPassword').value;
     const confirmPwd = document.getElementById('confirmPassword').value;
     
-    // Validation
     if (!name || !phone || !email || !pwd || !confirmPwd) {
       showRegisterError('Please fill in all required fields');
       return;
@@ -380,7 +383,6 @@
     registerBtn.innerText = 'Registering...';
     
     try {
-      // Check if email already exists in Firebase Auth
       try {
         const signInMethods = await auth.fetchSignInMethodsForEmail(email);
         if (signInMethods.length > 0) {
@@ -391,7 +393,6 @@
         }
       } catch(e) {}
       
-      // Check if phone already exists in Realtime Database
       const snapshot = await db.ref('users').once('value');
       let phoneExists = false;
       
@@ -406,11 +407,9 @@
         return;
       }
       
-      // Create user with Firebase Authentication
       const userCredential = await auth.createUserWithEmailAndPassword(email, pwd);
       const firebaseUser = userCredential.user;
       
-      // Save user data to Realtime Database
       const userData = {
         name: name,
         phone: phone,
@@ -426,10 +425,8 @@
       
       await db.ref('users/' + firebaseUser.uid).set(userData);
       
-      // Clear OTP data
       sessionStorage.removeItem('emailOTP');
       
-      // Save to localStorage for auto-login
       userData.id = firebaseUser.uid;
       userData.userId = firebaseUser.uid;
       localStorage.setItem('diaZoneUser', JSON.stringify(userData));
