@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dia Zone - Game Store</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b2e 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .container {
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+    }
+    .logo {
+      margin-bottom: 2rem;
+    }
+    .logo i {
+      font-size: 4rem;
+      color: #3b82f6;
+    }
+    .logo h1 {
+      color: white;
+      font-size: 2rem;
+      margin-top: 0.5rem;
+    }
+    .logo p {
+      color: #94a3b8;
+      margin-top: 0.3rem;
+    }
+    .card {
+      background: #1e293b;
+      border-radius: 1.5rem;
+      padding: 2rem;
+      border: 1px solid #334155;
+      margin-bottom: 1rem;
+    }
+    .card h2 {
+      color: white;
+      margin-bottom: 1rem;
+    }
+    .card p {
+      color: #94a3b8;
+      margin-bottom: 1.5rem;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.8rem 2rem;
+      border-radius: 2rem;
+      text-decoration: none;
+      font-weight: 600;
+      transition: 0.2s;
+      margin: 0 0.5rem;
+    }
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+    .btn-outline {
+      border: 1px solid #3b82f6;
+      color: #3b82f6;
+      background: transparent;
+    }
+    .btn-outline:hover {
+      background: rgba(59,130,246,0.1);
+    }
+    .features {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+    .feature {
+      text-align: center;
+      flex: 1;
+      min-width: 80px;
+    }
+    .feature i {
+      font-size: 1.5rem;
+      color: #3b82f6;
+      margin-bottom: 0.3rem;
+    }
+    .feature span {
+      color: #94a3b8;
+      font-size: 0.7rem;
+      display: block;
+    }
+    .footer {
+      margin-top: 2rem;
+      color: #64748b;
+      font-size: 0.7rem;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="logo">
+    <i class="fas fa-gem"></i>
+    <h1>Dia Zone</h1>
+    <p>Premium Game Store</p>
+  </div>
+  
+  <div class="card">
+    <h2>Welcome to Dia Zone</h2>
+    <p>Top up diamonds, UC, and game items at the best prices!</p>
+    <div>
+      <a href="login.html" class="btn btn-primary">Login</a>
+      <a href="register.html" class="btn btn-outline">Register</a>
+    </div>
+  </div>
+  
+  <div class="features">
+    <div class="feature">
+      <i class="fas fa-gamepad"></i>
+      <span>Mobile Legend<br>Diamonds</span>
+    </div>
+    <div class="feature">
+      <i class="fas fa-crosshairs"></i>
+      <span>PUBG UC<br>Top Up</span>
+    </div>
+    <div class="feature">
+      <i class="fas fa-wallet"></i>
+      <span>Fast & Secure<br>Payment</span>
+    </div>
+  </div>
+  
+  <div class="footer">
+    © 2024 Dia Zone. All rights reserved.
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+</body>
+</html>

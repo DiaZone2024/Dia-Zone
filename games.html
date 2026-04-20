@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Games</title>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+  <script src="https://telegram.org/js/telegram-web-app.js?62"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    /* CSS Styles - မူလအတိုင်း အပြည့်အစုံ */
+    :root { --bg-body: #f1f5f9; --bg-container: white; --text-primary: #0f172a; --text-secondary: #475569; --border-color: #e2e8f0; --card-bg: #f8fafc; --header-bg: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+    body.dark { --bg-body: #0f172a; --bg-container: #1e293b; --text-primary: #f1f5f9; --text-secondary: #94a3b8; --border-color: #334155; --card-bg: #0f172a; --header-bg: linear-gradient(135deg, #020617 0%, #0f172a 100%); }
+    * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.3s ease, color 0.2s ease; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg-body); min-height: 100vh; padding-bottom: 80px; }
+    .games-container { max-width: 500px; margin: 0 auto; background: var(--bg-container); min-height: 100vh; }
+    .header { background: var(--header-bg); padding: 1rem 1.2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+    .logo h1 { color: white; font-size: 1.3rem; font-weight: 700; }
+    .back-btn { background: rgba(255,255,255,0.15); border: none; color: white; font-size: 0.85rem; cursor: pointer; padding: 0.4rem 1rem; border-radius: 2rem; display: flex; align-items: center; gap: 6px; }
+    .products-title { padding: 1.5rem 1.2rem 0.5rem; }
+    .products-title h2 { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }
+    .game-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; padding: 1rem 1.2rem; }
+    .game-card { background: var(--card-bg); border-radius: 1.2rem; padding: 1rem 0.8rem; text-align: center; cursor: pointer; border: 1px solid var(--border-color); transition: all 0.2s; }
+    .game-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); background: var(--bg-container); }
+    .game-icon { width: 55px; height: 55px; background: linear-gradient(145deg, #3b82f6, #1d4ed8); border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.7rem; }
+    .game-icon i { font-size: 1.8rem; color: white; }
+    .game-name { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.3rem; }
+    .buy-btn { background: #0f172a; color: white; border: none; padding: 0.4rem 1rem; border-radius: 2rem; font-size: 0.7rem; font-weight: 600; cursor: pointer; margin-top: 0.5rem; width: 100%; }
+    .buy-btn:hover { background: #3b82f6; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-container); display: flex; justify-content: space-around; align-items: center; padding: 0.6rem 1rem; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); border-top: 1px solid var(--border-color); max-width: 500px; margin: 0 auto; z-index: 100; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 0.3rem 0.8rem; }
+    .nav-item i { font-size: 1.3rem; color: #94a3b8; }
+    .nav-item span { font-size: 0.65rem; color: #94a3b8; font-weight: 500; }
+    .nav-item.active i, .nav-item.active span { color: #3b82f6; }
+    .toast-msg { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #0f172a; color: white; padding: 0.6rem 1.2rem; border-radius: 2rem; font-size: 0.8rem; z-index: 100; display: none; }
+  </style>
+</head>
+<body>
+
+<div class="games-container">
+  <div class="header">
+    <button class="back-btn" id="backBtn"><i class="fas fa-arrow-left"></i> Back</button>
+    <div class="logo"><h1>Dia Zone</h1></div>
+    <div style="width:60px;"></div>
+  </div>
+  <div class="products-title"><h2>OUR PRODUCTS</h2></div>
+  <div class="game-grid" id="gameGrid"></div>
+  <div class="footer-links" style="padding: 1rem; text-align: center; border-top: 1px solid var(--border-color); margin-top: 1rem;">
+    <a href="#" style="color: #3b82f6; text-decoration: none; font-size: 0.75rem; margin: 0 0.5rem;">Privacy Policy</a>
+    <span style="color: var(--text-secondary);">|</span>
+    <a href="#" style="color: #3b82f6; text-decoration: none; font-size: 0.75rem; margin: 0 0.5rem;">Terms & Conditions</a>
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <div class="nav-item" data-page="home"><i class="fas fa-home"></i><span>Home</span></div>
+  <div class="nav-item active" data-page="games"><i class="fas fa-gamepad"></i><span>Games</span></div>
+  <div class="nav-item" data-page="wallet"><i class="fas fa-wallet"></i><span>Wallet</span></div>
+  <div class="nav-item" data-page="orders"><i class="fas fa-shopping-bag"></i><span>Orders</span></div>
+  <div class="nav-item" data-page="profile"><i class="fas fa-user"></i><span>Profile</span></div>
+</div>
+
+<div id="toastMsg" class="toast-msg">Coming Soon!</div>
+
+<script>
+  // --- Firebase Config (အချက်အလက်မှန်အောင် ထည့်ပေးပါ) ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyB8iE6D3N7X7qZxR9kLmNpQrStUvWxYz123456",
+    authDomain: "dia-zone.firebaseapp.com",
+    databaseURL: "https://dia-zone-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "dia-zone",
+    storageBucket: "dia-zone.appspot.com",
+    messagingSenderId: "123456789012",
+    appId: "1:123456789012:web:abc123def456ghi789"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  // မူလ Game List (Database မှာ မရှိရင် ဒါတွေ ပေါ်လာပါမယ်)
+  const defaultGames = ["Mobile Legend", "Pubg", "Genshin Impact", "Free Fire", "Heartopia", "Where Winds Meet", "MCGG", "EAFC Mobile My", "Honkai Star Rail", "Honor of King", "Ace Racer", "Solo Leveling Arise", "Sherry Potter", "Blood Strike", "Zenless Zone Zero", "CarX Street", "Arena Breakout", "Life After", "Delta Force", "Once Human Mobile"];
+
+  const gameIcons = { 
+    "Mobile Legend":"fa-gamepad","Pubg":"fa-crosshairs","Genshin Impact":"fa-dragon","Free Fire":"fa-fire",
+    "Heartopia":"fa-heart","Where Winds Meet":"fa-wind","MCGG":"fa-robot","EAFC Mobile My":"fa-futbol",
+    "Honkai Star Rail":"fa-train","Honor of King":"fa-crown","Ace Racer":"fa-car","Solo Leveling Arise":"fa-skull",
+    "Sherry Potter":"fa-hat-wizard","Blood Strike":"fa-bolt","Zenless Zone Zero":"fa-charging-station",
+    "CarX Street":"fa-road","Arena Breakout":"fa-shield-alt","Life After":"fa-tree","Delta Force":"fa-fist-raised",
+    "Once Human Mobile":"fa-user-astronaut" 
+  };
+
+  const gameGrid = document.getElementById('gameGrid');
+  const toastMsg = document.getElementById('toastMsg');
+  let toastTimeout;
+
+  function showToast(msg) {
+    toastMsg.textContent = msg;
+    toastMsg.style.display = 'block';
+    if (toastTimeout) clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => { toastMsg.style.display = 'none'; }, 2000);
+  }
+
+  function renderGames(games) {
+    gameGrid.innerHTML = '';
+    // Database မှာ မရှိရင် defaultGames ကို သုံးမယ်
+    const gameList = (games && games.length > 0) ? games : defaultGames;
+
+    gameList.forEach(game => {
+      const card = document.createElement('div');
+      card.className = 'game-card';
+      const icon = gameIcons[game] || "fa-gamepad";
+      card.innerHTML = `
+        <div class="game-icon"><i class="fas ${icon}"></i></div>
+        <div class="game-name">${game}</div>
+        <button class="buy-btn">Buy Now</button>
+      `;
+      
+      card.addEventListener('click', () => {
+        if (game === 'Mobile Legend') window.location.href = 'ml-diamonds.html';
+        else if (game === 'Pubg') window.location.href = 'pubg-uc.html';
+        else showToast(`🎮 ${game} - Coming Soon!`);
+      });
+      
+      gameGrid.appendChild(card);
+    });
+  }
+
+  // --- Real-time Sync with Fallback ---
+  db.ref('settings/games').on('value', (snapshot) => {
+    const data = snapshot.val();
+    console.log("Firebase Data:", data); // Check console if list not showing
+    renderGames(data);
+  }, (error) => {
+    console.error("Firebase Error:", error);
+    renderGames(defaultGames); // Error ဖြစ်ရင် default ပြမယ်
+  });
+
+  // Dark Mode Theme
+  if (localStorage.getItem('diaZoneTheme') === 'dark') document.body.classList.add('dark');
+
+  // Navigation
+  document.getElementById('backBtn').onclick = () => window.location.href = 'dashboard.html';
+
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const page = item.dataset.page;
+      if (page === 'home') window.location.href = 'dashboard.html';
+      else if (page !== 'games') window.location.href = page + '.html';
+    });
+  });
+</script>
+</body>
+</html>

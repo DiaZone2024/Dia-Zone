@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>DiaZone Login</title>
+  
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+  <script src="https://telegram.org/js/telegram-web-app.js?62"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --bg-body: linear-gradient(135deg, #f5f7fc 0%, #e9eef5 100%);
+      --bg-card: white;
+      --text-primary: #0a2540;
+      --text-secondary: #334155;
+      --border-color: #e2e8f0;
+      --input-bg: #fefefe;
+      --input-border: #e2e8f0;
+      --btn-bg: #0f172a;
+      --btn-hover: #1e293b;
+      --error-bg: #fee2e2;
+      --error-text: #b91c1c;
+      --warning-bg: #fef9e3;
+      --warning-text: #92400e;
+    }
+    body.dark {
+      --bg-body: linear-gradient(135deg, #0f172a 0%, #1e1b2e 100%);
+      --bg-card: #1e293b;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --border-color: #334155;
+      --input-bg: #0f172a;
+      --input-border: #475569;
+      --btn-bg: #3b82f6;
+      --btn-hover: #2563eb;
+      --error-bg: #7f1d1d;
+      --error-text: #fecaca;
+      --warning-bg: #451a03;
+      --warning-text: #fbbf24;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.3s ease, color 0.2s ease, border-color 0.2s ease; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg-body); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem; }
+    .login-card { max-width: 520px; width: 100%; background: var(--bg-card); border-radius: 2rem; box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.15); padding: 2rem 2rem 2.5rem; }
+    h1 { font-size: 1.9rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; }
+    .input-group { margin-bottom: 1.25rem; }
+    label { display: block; font-weight: 600; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem; }
+    input { width: 100%; padding: 0.85rem 1rem; border: 1.5px solid var(--input-border); border-radius: 1rem; font-size: 0.95rem; font-family: inherit; background: var(--input-bg); color: var(--text-primary); }
+    input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
+    .btn-primary { width: 100%; background: var(--btn-bg); color: white; font-weight: 700; padding: 0.85rem; border: none; border-radius: 2rem; font-size: 1rem; cursor: pointer; margin-top: 0.5rem; font-family: inherit; transition: 0.2s; }
+    .btn-primary:hover { background: var(--btn-hover); transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+    .register-link { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-secondary); }
+    .register-link a { color: #3b82f6; font-weight: 600; text-decoration: none; cursor: pointer; }
+    hr { margin: 1.5rem 0; border-color: var(--border-color); }
+    .error-box { background: var(--error-bg); border-radius: 1rem; padding: 0.8rem 1rem; margin-top: 1rem; font-size: 0.85rem; color: var(--error-text); display: none; }
+    .error-box.show { display: block; }
+    small { display: block; margin-top: 1rem; text-align: center; color: var(--text-secondary); font-size: 0.7rem; }
+  </style>
+  <script>
+    function loadTheme() { const savedTheme = localStorage.getItem('diaZoneTheme'); if (savedTheme === 'dark') { document.body.classList.add('dark'); } }
+    loadTheme();
+    if (window.Telegram && window.Telegram.WebApp) { const tg = window.Telegram.WebApp; tg.expand(); tg.ready(); }
+  </script>
+</head>
+<body>
+<div class="login-card">
+  <h1>Dia Zone</h1>
+  <form id="loginForm">
+    <div class="input-group"><label>Phone / Email / Username</label><input type="text" id="username" placeholder="Phone, email or username" autocomplete="off"></div>
+    <div class="input-group"><label>Password</label><input type="password" id="password" placeholder="Password"></div>
+    <button type="submit" class="btn-primary" id="loginBtn">Login</button>
+  </form>
+  <div class="register-link">Don't have an account? <a href="#" id="registerRedirect">Register</a></div>
+  <hr>
+  <div id="errorMessage" class="error-box"></div>
+  <small>Dia Zone • Secure Account</small>
+</div>
+
+<script>
+  // --- Firebase Configuration ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyB8iE6D3N7X7qZxR9kLmNpQrStUvWxYz123456",
+    authDomain: "dia-zone.firebaseapp.com",
+    databaseURL: "https://dia-zone-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "dia-zone",
+    storageBucket: "dia-zone.appspot.com",
+    messagingSenderId: "123456789012",
+    appId: "1:123456789012:web:abc123def456ghi789"
+  };
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  const db = firebase.database();
+
+  const loginForm = document.getElementById('loginForm');
+  const errorDiv = document.getElementById('errorMessage');
+  const loginBtn = document.getElementById('loginBtn');
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const userInput = document.getElementById('username').value.trim();
+    const passInput = document.getElementById('password').value.trim();
+
+    errorDiv.classList.remove('show');
+    
+    if (!userInput || !passInput) {
+      showError('Please enter both username/phone/email and password');
+      return;
+    }
+
+    loginBtn.disabled = true;
+    loginBtn.innerText = 'Checking...';
+
+    try {
+      // Get all users from Firebase
+      const snapshot = await db.ref('users').once('value');
+      let foundUser = null;
+      let userKey = null;
+
+      // Search for user by phone, email, or name
+      snapshot.forEach((childSnapshot) => {
+        const userData = childSnapshot.val();
+        if (userData.phone === userInput || 
+            userData.email === userInput || 
+            userData.name === userInput) {
+          if (userData.password === passInput) {
+            foundUser = userData;
+            userKey = childSnapshot.key;
+          }
+        }
+      });
+
+      if (foundUser) {
+        // Check if user is suspended
+        if (foundUser.status === 'Suspended') {
+          showError('Your account has been suspended. Please contact admin.');
+        } else {
+          // Login Success - Save user data with ID
+          foundUser.id = userKey;
+          foundUser.userId = userKey;
+          localStorage.setItem('diaZoneUser', JSON.stringify(foundUser));
+          sessionStorage.setItem('diaZoneUser', JSON.stringify(foundUser));
+          
+          console.log('Login successful for user:', foundUser.name);
+          window.location.href = 'dashboard.html';
+        }
+      } else {
+        showError('Invalid username/phone/email or password');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      showError('Connection error. Please check your internet connection.');
+    } finally {
+      loginBtn.disabled = false;
+      loginBtn.innerText = 'Login';
+    }
+  });
+
+  function showError(msg) {
+    errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${msg}`;
+    errorDiv.classList.add('show');
+  }
+
+  document.getElementById('registerRedirect').addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.href = 'register.html';
+  });
+</script>
+</body>
+</html>
