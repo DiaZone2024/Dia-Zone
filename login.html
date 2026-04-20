@@ -78,18 +78,22 @@
 </div>
 
 <script>
+  // ============ FIREBASE CONFIGURATION (SAME AS REGISTER PAGE) ============
   const firebaseConfig = {
-    apiKey: "AIzaSyB8iE6D3N7X7qZxR9kLmNpQrStUvWxYz123456",
+    apiKey: "AIzaSyCZridqu0bhTRM5mzbRdfJxWic4xcG7rg4",
     authDomain: "dia-zone.firebaseapp.com",
     databaseURL: "https://dia-zone-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "dia-zone",
-    storageBucket: "dia-zone.appspot.com",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:abc123def456ghi789"
+    storageBucket: "dia-zone.firebasestorage.app",
+    messagingSenderId: "954378673786",
+    appId: "1:954378673786:web:fe6ab648f60eb5207665c3",
+    measurementId: "G-CFZG0R60XN"
   };
 
+  // Initialize Firebase
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
+    console.log("✅ Firebase initialized");
   }
   const auth = firebase.auth();
   const db = firebase.database();
@@ -114,40 +118,52 @@
     loginBtn.innerText = 'Logging in...';
 
     try {
+      // 1. Sign in with Firebase Authentication
       const userCredential = await auth.signInWithEmailAndPassword(email, password);
       const user = userCredential.user;
       
-      const snapshot = await db.ref('users/' + user.uid).once('value');
-      const userData = snapshot.val();
+      console.log("✅ Firebase Auth success. UID:", user.uid);
       
-      if (!userData) {
-        showError('User data not found');
+      // 2. Get user data from Realtime Database
+      const snapshot = await db.ref('users/' + user.uid).once('value');
+      
+      if (!snapshot.exists()) {
+        console.error("❌ User data not found in database");
+        showError('User data not found. Please contact support.');
         await auth.signOut();
         return;
       }
       
+      const userData = snapshot.val();
+      console.log("✅ User data loaded:", userData.name);
+      
+      // 3. Check if user is suspended
       if (userData.status === 'Suspended') {
         showError('Your account has been suspended. Please contact admin.');
         await auth.signOut();
         return;
       }
       
+      // 4. Save to localStorage
       userData.id = user.uid;
       userData.userId = user.uid;
       localStorage.setItem('diaZoneUser', JSON.stringify(userData));
       sessionStorage.setItem('diaZoneUser', JSON.stringify(userData));
       
+      console.log("✅ Login successful, redirecting to dashboard");
       window.location.href = 'dashboard.html';
       
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('❌ Login error:', error);
       let errorMsg = 'Invalid email or password';
       if (error.code === 'auth/user-not-found') {
-        errorMsg = 'No account found with this email';
+        errorMsg = 'No account found with this email. Please register first.';
       } else if (error.code === 'auth/wrong-password') {
-        errorMsg = 'Incorrect password';
+        errorMsg = 'Incorrect password. Please try again.';
       } else if (error.code === 'auth/invalid-email') {
-        errorMsg = 'Invalid email format';
+        errorMsg = 'Invalid email format.';
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMsg = 'Too many failed attempts. Please try again later.';
       }
       showError(errorMsg);
       loginBtn.disabled = false;
@@ -161,7 +177,7 @@
     setTimeout(() => {
       loginBtn.disabled = false;
       loginBtn.innerText = 'Login';
-    }, 2000);
+    }, 3000);
   }
 
   document.getElementById('registerRedirect').addEventListener('click', (e) => {
