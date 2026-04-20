@@ -3,10 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Register</title>
+  <title>Register - Dia Zone (Email OTP)</title>
   
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
   <script src="https://telegram.org/js/telegram-web-app.js?62"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
@@ -26,7 +30,8 @@
       --error-text: #b91c1c;
       --success-bg: #dcfce7;
       --success-text: #166534;
-      --captcha-bg: #f3f4f6;
+      --info-bg: #e0f2fe;
+      --info-text: #0369a1;
     }
     body.dark {
       --bg-body: linear-gradient(145deg, #0f172a 0%, #1e1b2e 100%);
@@ -42,7 +47,8 @@
       --error-text: #fecaca;
       --success-bg: #065f46;
       --success-text: #a7f3d0;
-      --captcha-bg: #334155;
+      --info-bg: #082f49;
+      --info-text: #7dd3fc;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.3s ease, color 0.2s ease, border-color 0.2s ease; }
     body { font-family: 'Inter', sans-serif; background: var(--bg-body); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem; }
@@ -50,16 +56,14 @@
     h2 { font-size: 1.8rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.5rem; }
     .input-row { margin-bottom: 1.2rem; }
     label { display: block; font-weight: 600; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem; }
+    label .required { color: #ef4444; }
     input { width: 100%; padding: 0.85rem 1rem; border: 1.5px solid var(--input-border); border-radius: 1rem; font-size: 0.95rem; font-family: inherit; background: var(--input-bg); color: var(--text-primary); }
     input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
-    .captcha-box { background: var(--captcha-bg); border-radius: 1rem; padding: 0.8rem 1rem; display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; border: 1px solid var(--border-color); margin: 1rem 0; }
-    .checkbox-mock { width: 1.2rem; height: 1.2rem; border: 2px solid #6b7280; border-radius: 0.25rem; background: white; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
-    .checkbox-mock.checked { background: #3b82f6; border-color: #3b82f6; }
-    .checkbox-mock.checked::after { content: "✓"; color: white; font-size: 0.8rem; font-weight: bold; }
-    .captcha-text { font-size: 0.85rem; font-weight: 500; color: var(--text-primary); }
-    .recaptcha-badge { margin-left: auto; font-size: 0.7rem; background: #eef2ff; padding: 0.2rem 0.6rem; border-radius: 30px; color: #1e40af; }
-    body.dark .recaptcha-badge { background: #1e40af; color: white; }
-    .btn-register { width: 100%; background: var(--btn-bg); color: white; font-weight: 700; padding: 0.9rem; border: none; border-radius: 2rem; font-size: 1rem; cursor: pointer; margin-top: 0.5rem; font-family: inherit; transition: 0.2s; }
+    .otp-group { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; }
+    .otp-group input { flex: 2; margin-bottom: 0; }
+    .otp-group button { padding: 0.85rem 1.2rem; border-radius: 1rem; border: none; font-weight: 600; cursor: pointer; background: #3b82f6; color: white; white-space: nowrap; }
+    .otp-group button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-register { width: 100%; background: var(--btn-bg); color: white; font-weight: 700; padding: 0.9rem; border: none; border-radius: 2rem; font-size: 1rem; cursor: pointer; margin-top: 1rem; font-family: inherit; transition: 0.2s; }
     .btn-register:hover { background: var(--btn-hover); transform: scale(0.98); }
     .btn-register:disabled { opacity: 0.7; cursor: not-allowed; }
     .login-redirect { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-secondary); }
@@ -69,7 +73,10 @@
     .form-error.show { display: block; }
     .success-text { background: var(--success-bg); color: var(--success-text); padding: 0.6rem; border-radius: 0.8rem; display: none; margin-top: 1rem; }
     .success-text.show { display: block; }
+    .info-text { background: var(--info-bg); color: var(--info-text); padding: 0.6rem; border-radius: 0.8rem; margin-top: 1rem; font-size: 0.8rem; text-align: center; display: none; }
+    .info-text.show { display: block; }
     small { display: block; text-align: center; margin-top: 1rem; color: var(--text-secondary); font-size: 0.7rem; }
+    .resend-btn { background: none; border: none; color: #3b82f6; cursor: pointer; font-size: 0.8rem; margin-top: 0.5rem; text-decoration: underline; display: none; }
   </style>
   <script>
     function loadTheme() { const savedTheme = localStorage.getItem('diaZoneTheme'); if (savedTheme === 'dark') { document.body.classList.add('dark'); } }
@@ -81,18 +88,44 @@
 <div class="register-card">
   <h2>Register Account</h2>
   <form id="registerForm">
-    <div class="input-row"><label>Name *</label><input type="text" id="fullName" placeholder="Full name" autocomplete="off"></div>
-    <div class="input-row"><label>Phone *</label><input type="tel" id="phone" placeholder="Phone number"></div>
-    <div class="input-row"><label>Email (Optional)</label><input type="email" id="email" placeholder="Email address"></div>
-    <div class="input-row"><label>Password *</label><input type="password" id="regPassword" placeholder="Create password"></div>
-    <div class="input-row"><label>Retype Password *</label><input type="password" id="confirmPassword" placeholder="Confirm password"></div>
-    <div class="captcha-box"><div class="checkbox-mock" id="recaptchaCheckbox"></div><span class="captcha-text">I'm not a robot</span><span class="recaptcha-badge">reCAPTCHA</span></div>
-    <button type="submit" class="btn-register" id="registerBtn">Register</button>
+    <div class="input-row">
+      <label>Name <span class="required">*</span></label>
+      <input type="text" id="fullName" placeholder="Full name" autocomplete="off">
+    </div>
+    <div class="input-row">
+      <label>Phone <span class="required">*</span></label>
+      <input type="tel" id="phone" placeholder="Phone number">
+    </div>
+    <div class="input-row">
+      <label>Email <span class="required">*</span></label>
+      <input type="email" id="email" placeholder="your@email.com">
+    </div>
+    <div class="input-row">
+      <label>Password <span class="required">*</span></label>
+      <input type="password" id="regPassword" placeholder="Create password (min 6 characters)">
+    </div>
+    <div class="input-row">
+      <label>Retype Password <span class="required">*</span></label>
+      <input type="password" id="confirmPassword" placeholder="Confirm password">
+    </div>
+    
+    <!-- OTP Section -->
+    <div class="input-row">
+      <label>Email Verification <span class="required">*</span></label>
+      <div class="otp-group">
+        <input type="text" id="otpCode" placeholder="Enter 6-digit OTP code" maxlength="6" autocomplete="off" disabled>
+        <button type="button" id="sendOtpBtn">Send OTP</button>
+      </div>
+      <div id="otpStatus" class="info-text"></div>
+      <button type="button" id="resendOtpBtn" class="resend-btn">Resend OTP</button>
+    </div>
+    
+    <button type="submit" class="btn-register" id="registerBtn" disabled>Register</button>
   </form>
   <div id="registerFormError" class="form-error"></div>
   <div id="registerSuccessMsg" class="success-text"></div>
   <div class="login-redirect">Already have an account? <a id="gotoLogin">Login</a></div>
-  <hr><small>Dia Zone • Secure registration</small>
+  <hr><small>Dia Zone • Email OTP Verification</small>
 </div>
 
 <script>
@@ -110,40 +143,214 @@
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
   }
+  const auth = firebase.auth();
   const db = firebase.database();
 
-  const recaptchaBox = document.getElementById('recaptchaCheckbox');
-  let isCaptchaVerified = false;
-  
-  recaptchaBox.addEventListener('click', () => {
-    if (recaptchaBox.classList.contains('checked')) {
-      recaptchaBox.classList.remove('checked');
-      isCaptchaVerified = false;
+  // ============ EMAILJS CONFIGURATION ============
+  // Initialize EmailJS with Public Key
+  emailjs.init("w6UmVAyBh9bh_1H4R");
+
+  // ============ EMAIL OTP SYSTEM ============
+  let currentEmail = '';
+  let isOtpVerified = false;
+  let generatedOtp = '';
+
+  const sendOtpBtn = document.getElementById('sendOtpBtn');
+  const resendOtpBtn = document.getElementById('resendOtpBtn');
+  const otpCodeInput = document.getElementById('otpCode');
+  const otpStatus = document.getElementById('otpStatus');
+  const registerBtn = document.getElementById('registerBtn');
+  const emailInput = document.getElementById('email');
+  const fullNameInput = document.getElementById('fullName');
+
+  // Generate random 6-digit OTP
+  function generateOTP() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
+
+  // Send OTP via EmailJS
+  async function sendOTPToEmail(email, userName) {
+    const otp = generateOTP();
+    generatedOtp = otp;
+    
+    // Store OTP in sessionStorage with expiry (5 minutes)
+    const otpData = {
+      code: otp,
+      email: email,
+      expiry: Date.now() + 5 * 60 * 1000
+    };
+    sessionStorage.setItem('emailOTP', JSON.stringify(otpData));
+    
+    try {
+      const result = await emailjs.send(
+        'service_taubudq',        // Service ID
+        'template_ohzh2c4',       // Template ID
+        {
+          to_email: email,
+          otp_code: otp,
+          user_name: userName || 'User'
+        }
+      );
+      console.log('Email sent successfully:', result);
+      return true;
+    } catch(error) {
+      console.error('EmailJS error:', error);
+      return false;
+    }
+  }
+
+  // Send OTP button click
+  sendOtpBtn.addEventListener('click', async () => {
+    const email = emailInput.value.trim();
+    const userName = fullNameInput.value.trim() || 'User';
+    
+    if (!email) {
+      otpStatus.textContent = 'Please enter your email address first';
+      otpStatus.classList.add('show');
+      setTimeout(() => otpStatus.classList.remove('show'), 3000);
+      return;
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      otpStatus.textContent = 'Please enter a valid email address';
+      otpStatus.classList.add('show');
+      setTimeout(() => otpStatus.classList.remove('show'), 3000);
+      return;
+    }
+    
+    currentEmail = email;
+    sendOtpBtn.disabled = true;
+    sendOtpBtn.textContent = 'Sending...';
+    otpStatus.textContent = 'Sending OTP to your email...';
+    otpStatus.classList.add('show');
+    
+    const success = await sendOTPToEmail(email, userName);
+    
+    if (success) {
+      otpStatus.textContent = '✓ OTP sent! Please check your email. (Valid for 5 minutes)';
+      otpStatus.style.background = '#10b981';
+      otpStatus.style.color = 'white';
+      resendOtpBtn.style.display = 'inline-block';
+      otpCodeInput.disabled = false;
+      otpCodeInput.focus();
     } else {
-      recaptchaBox.classList.add('checked');
-      isCaptchaVerified = true;
+      otpStatus.textContent = '✗ Failed to send OTP. Please try again.';
+      otpStatus.style.background = '#ef4444';
+      otpStatus.style.color = 'white';
+      sendOtpBtn.disabled = false;
+      sendOtpBtn.textContent = 'Send OTP';
+    }
+    
+    setTimeout(() => {
+      otpStatus.classList.remove('show');
+      otpStatus.style.background = '';
+      otpStatus.style.color = '';
+    }, 5000);
+    
+    sendOtpBtn.disabled = false;
+    sendOtpBtn.textContent = 'Send OTP';
+  });
+  
+  // Resend OTP button click
+  resendOtpBtn.addEventListener('click', async () => {
+    if (!currentEmail) {
+      alert('Please enter your email first');
+      return;
+    }
+    const userName = fullNameInput.value.trim() || 'User';
+    sendOtpBtn.disabled = true;
+    sendOtpBtn.textContent = 'Sending...';
+    otpStatus.textContent = 'Resending OTP...';
+    otpStatus.classList.add('show');
+    
+    const success = await sendOTPToEmail(currentEmail, userName);
+    
+    if (success) {
+      otpStatus.textContent = '✓ OTP resent! Please check your email.';
+      otpStatus.style.background = '#10b981';
+      otpStatus.style.color = 'white';
+    } else {
+      otpStatus.textContent = '✗ Failed to resend OTP. Please try again.';
+      otpStatus.style.background = '#ef4444';
+      otpStatus.style.color = 'white';
+    }
+    
+    setTimeout(() => {
+      otpStatus.classList.remove('show');
+      otpStatus.style.background = '';
+      otpStatus.style.color = '';
+    }, 4000);
+    
+    sendOtpBtn.disabled = false;
+    sendOtpBtn.textContent = 'Send OTP';
+  });
+  
+  // Verify OTP on input
+  otpCodeInput.addEventListener('input', () => {
+    const enteredCode = otpCodeInput.value.trim();
+    const storedData = sessionStorage.getItem('emailOTP');
+    
+    if (storedData && enteredCode.length === 6) {
+      try {
+        const otpData = JSON.parse(storedData);
+        if (Date.now() > otpData.expiry) {
+          otpStatus.textContent = 'OTP has expired. Please request a new one.';
+          otpStatus.classList.add('show');
+          otpCodeInput.value = '';
+          isOtpVerified = false;
+          registerBtn.disabled = true;
+          setTimeout(() => otpStatus.classList.remove('show'), 3000);
+          return;
+        }
+        
+        if (enteredCode === otpData.code && otpData.email === currentEmail) {
+          isOtpVerified = true;
+          registerBtn.disabled = false;
+          otpStatus.textContent = '✓ Email verified successfully!';
+          otpStatus.style.background = '#10b981';
+          otpStatus.style.color = 'white';
+          otpStatus.classList.add('show');
+          setTimeout(() => {
+            otpStatus.classList.remove('show');
+            otpStatus.style.background = '';
+            otpStatus.style.color = '';
+          }, 3000);
+        } else {
+          isOtpVerified = false;
+          registerBtn.disabled = true;
+          if (enteredCode.length === 6) {
+            otpStatus.textContent = 'Invalid OTP code. Please try again.';
+            otpStatus.classList.add('show');
+            setTimeout(() => otpStatus.classList.remove('show'), 2000);
+          }
+        }
+      } catch(e) {
+        console.error('OTP verification error:', e);
+      }
     }
   });
 
+  // ============ REGISTRATION ============
   const registerForm = document.getElementById('registerForm');
   const formErrorDiv = document.getElementById('registerFormError');
   const successDiv = document.getElementById('registerSuccessMsg');
-  const registerBtn = document.getElementById('registerBtn');
 
   registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     formErrorDiv.classList.remove('show');
     successDiv.classList.remove('show');
-    formErrorDiv.innerHTML = '';
-
+    
     const name = document.getElementById('fullName').value.trim();
     const phone = document.getElementById('phone').value.trim();
-    const email = document.getElementById('email').value.trim();
+    const email = emailInput.value.trim();
     const pwd = document.getElementById('regPassword').value;
     const confirmPwd = document.getElementById('confirmPassword').value;
-
-    if (!name || !phone || !pwd || !confirmPwd) {
+    
+    // Validation
+    if (!name || !phone || !email || !pwd || !confirmPwd) {
       showRegisterError('Please fill in all required fields');
       return;
     }
@@ -153,34 +360,43 @@
       return;
     }
     
-    if (pwd.length < 4) {
-      showRegisterError('Password must be at least 4 characters');
-      return;
-    }
-    
-    if (!isCaptchaVerified) {
-      showRegisterError('Please verify that you are not a robot');
+    if (pwd.length < 6) {
+      showRegisterError('Password must be at least 6 characters');
       return;
     }
     
     const phoneRegex = /^[0-9\-\+\s]{9,15}$/;
     if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
-      showRegisterError('Invalid phone number format');
+      showRegisterError('Invalid phone number format (9-15 digits)');
       return;
     }
-
+    
+    if (!isOtpVerified) {
+      showRegisterError('Please verify your email with OTP code first');
+      return;
+    }
+    
     registerBtn.disabled = true;
     registerBtn.innerText = 'Registering...';
-
+    
     try {
-      // Check if phone already exists
+      // Check if email already exists in Firebase Auth
+      try {
+        const signInMethods = await auth.fetchSignInMethodsForEmail(email);
+        if (signInMethods.length > 0) {
+          showRegisterError('Email already registered!');
+          registerBtn.disabled = false;
+          registerBtn.innerText = 'Register';
+          return;
+        }
+      } catch(e) {}
+      
+      // Check if phone already exists in Realtime Database
       const snapshot = await db.ref('users').once('value');
       let phoneExists = false;
       
       snapshot.forEach((child) => {
-        if (child.val().phone === phone) {
-          phoneExists = true;
-        }
+        if (child.val().phone === phone) phoneExists = true;
       });
       
       if (phoneExists) {
@@ -190,24 +406,32 @@
         return;
       }
       
-      // Create new user
-      const newUserRef = db.ref('users').push();
+      // Create user with Firebase Authentication
+      const userCredential = await auth.createUserWithEmailAndPassword(email, pwd);
+      const firebaseUser = userCredential.user;
+      
+      // Save user data to Realtime Database
       const userData = {
         name: name,
         phone: phone,
-        email: email || `${phone}@user.com`,
+        email: email,
         password: pwd,
         balance: 0,
         memberSince: new Date().getFullYear().toString(),
-        status: 'Verified',  // Changed from 'Pending Verification' to 'Verified'
-        registerDate: new Date().toISOString()
+        status: 'Verified',
+        emailVerified: true,
+        registerDate: new Date().toISOString(),
+        authUid: firebaseUser.uid
       };
       
-      await newUserRef.set(userData);
+      await db.ref('users/' + firebaseUser.uid).set(userData);
+      
+      // Clear OTP data
+      sessionStorage.removeItem('emailOTP');
       
       // Save to localStorage for auto-login
-      userData.id = newUserRef.key;
-      userData.userId = newUserRef.key;
+      userData.id = firebaseUser.uid;
+      userData.userId = firebaseUser.uid;
       localStorage.setItem('diaZoneUser', JSON.stringify(userData));
       sessionStorage.setItem('diaZoneUser', JSON.stringify(userData));
       
@@ -220,14 +444,22 @@
       
     } catch (error) {
       console.error('Registration error:', error);
-      showRegisterError('Connection error. Please try again.');
+      let errorMsg = 'Connection error. Please try again.';
+      if (error.code === 'auth/email-already-in-use') {
+        errorMsg = 'Email already registered!';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMsg = 'Invalid email format!';
+      } else if (error.code === 'auth/weak-password') {
+        errorMsg = 'Password is too weak. Use at least 6 characters.';
+      }
+      showRegisterError(errorMsg);
       registerBtn.disabled = false;
       registerBtn.innerText = 'Register';
     }
   });
 
   function showRegisterError(msg) {
-    formErrorDiv.innerHTML = msg;
+    formErrorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${msg}`;
     formErrorDiv.classList.add('show');
     successDiv.classList.remove('show');
   }
