@@ -1,155 +1,564 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="my">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Wallet</title>
+  <title>Dia Zone - Wallet</title>
   
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
   <script src="https://telegram.org/js/telegram-web-app.js?62"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    :root {
-      --bg-body: #f1f5f9;
-      --bg-container: white;
-      --text-primary: #0f172a;
-      --text-secondary: #475569;
-      --border-color: #e2e8f0;
-      --card-bg: #f8fafc;
-      --header-bg: linear-gradient(135deg, #0f172a, #1e293b);
-      --wallet-bg: linear-gradient(145deg, #3b82f6, #1d4ed8);
-      --modal-bg: white;
-      --status-approved: #10b981;
-      --status-rejected: #ef4444;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-    body.dark {
-      --bg-body: #0f172a;
-      --bg-container: #1e293b;
-      --text-primary: #f1f5f9;
-      --text-secondary: #94a3b8;
-      --border-color: #334155;
-      --card-bg: #0f172a;
-      --header-bg: linear-gradient(135deg, #020617, #0f172a);
-      --wallet-bg: linear-gradient(145deg, #2563eb, #1d4ed8);
-      --modal-bg: #1e293b;
+
+    body {
+      background: linear-gradient(145deg, #0b0c1a 0%, #11132a 100%);
+      font-family: 'Inter', 'Poppins', 'Myanmar Text', sans-serif;
+      min-height: 100vh;
+      padding-bottom: 85px;
+      background-image: url('image/layla.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.3s ease, color 0.2s ease; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg-body); padding-bottom: 80px; }
-    .container { max-width: 500px; margin: 0 auto; background: var(--bg-container); min-height: 100vh; }
-    .header { background: var(--header-bg); padding: 1.5rem; text-align: center; }
-    .header h1 { color: white; font-size: 1.5rem; }
-    .wallet-card { background: var(--wallet-bg); margin: 1.5rem; padding: 1.5rem; border-radius: 1.5rem; text-align: center; }
-    .wallet-card h3 { color: rgba(255,255,255,0.8); font-size: 0.8rem; margin-bottom: 0.5rem; }
-    .wallet-card .balance { font-size: 2.5rem; font-weight: 700; color: white; }
-    .menu-list { margin: 1rem 1.5rem; }
-    .menu-item { display: flex; align-items: center; gap: 15px; padding: 1rem; background: var(--card-bg); border-radius: 1rem; margin-bottom: 0.8rem; cursor: pointer; border: 1px solid var(--border-color); }
-    .menu-item i { font-size: 1.3rem; color: #3b82f6; width: 30px; }
-    .menu-item span { flex: 1; font-weight: 500; color: var(--text-primary); }
-    .menu-item small { color: var(--text-secondary); font-size: 0.7rem; }
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-container); display: flex; justify-content: space-around; align-items: center; padding: 0.6rem 1rem; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); border-top: 1px solid var(--border-color); max-width: 500px; margin: 0 auto; z-index: 100; }
-    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 0.3rem 0.8rem; }
-    .nav-item i { font-size: 1.3rem; color: #94a3b8; }
-    .nav-item span { font-size: 0.65rem; color: #94a3b8; font-weight: 500; }
-    .nav-item.active i, .nav-item.active span { color: #3b82f6; }
-    
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
-    .modal.show { display: flex; }
-    .modal-content { background: var(--modal-bg); border-radius: 1.5rem; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; padding: 1.5rem; animation: slideUp 0.3s ease; }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-    .modal-content h3 { font-size: 1.3rem; margin-bottom: 0.5rem; color: var(--text-primary); text-align: center; }
-    .payment-info { background: var(--card-bg); border-radius: 1rem; padding: 1rem; margin: 1rem 0; border: 1px solid var(--border-color); }
-    .payment-method { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem; border-bottom: 1px solid var(--border-color); }
-    .payment-method:last-child { border-bottom: none; }
-    .payment-method .method-name { font-weight: 700; color: var(--text-primary); }
-    .payment-method .method-details { color: #3b82f6; font-weight: 600; }
-    .payment-method .method-owner { font-size: 0.7rem; color: var(--text-secondary); }
-    .instruction { font-size: 0.8rem; color: var(--text-secondary); text-align: center; margin: 0.8rem 0; padding: 0.5rem; background: #fef9e3; border-radius: 0.8rem; }
-    body.dark .instruction { background: #451a03; color: #fbbf24; }
-    .modal-content input { width: 100%; padding: 0.8rem; margin-bottom: 1rem; border: 1px solid var(--border-color); border-radius: 0.8rem; background: var(--bg-container); color: var(--text-primary); }
-    .modal-buttons { display: flex; gap: 0.8rem; margin-top: 0.5rem; }
-    .modal-buttons button { flex: 1; padding: 0.8rem; border-radius: 2rem; border: none; font-weight: 600; cursor: pointer; }
-    .confirm-btn { background: #3b82f6; color: white; }
-    .cancel-btn { background: #e2e8f0; color: #334155; }
-    body.dark .cancel-btn { background: #334155; color: white; }
-    .error-msg { color: #dc2626; font-size: 0.75rem; display: none; }
-    .error-msg.show { display: block; }
-    .success-toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 0.6rem 1.2rem; border-radius: 2rem; font-size: 0.8rem; z-index: 1000; display: none; }
-    
-    .history-list { display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1rem; }
-    .history-item { background: var(--card-bg); border-radius: 0.8rem; padding: 0.8rem; border: 1px solid var(--border-color); }
-    .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem; flex-wrap: wrap; }
-    .history-status { font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 1rem; font-weight: 600; }
-    .status-approved { background: var(--status-approved); color: white; }
-    .status-rejected { background: var(--status-rejected); color: white; }
-    .history-amount { font-size: 1rem; font-weight: 700; color: #3b82f6; }
-    .history-date { font-size: 0.65rem; color: var(--text-secondary); margin-top: 0.3rem; }
-    .close-modal-btn { margin-top: 1rem; background: #3b82f6; color: white; border: none; padding: 0.7rem; border-radius: 2rem; width: 100%; cursor: pointer; font-weight: 600; }
-    .empty-state { text-align: center; color: var(--text-secondary); padding: 2rem; }
+
+    .container {
+      max-width: 550px;
+      margin: 0 auto;
+      background: rgba(18, 22, 48, 0.65);
+      backdrop-filter: blur(10px);
+      min-height: 100vh;
+      border-radius: 0;
+      box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, rgba(30, 35, 72, 0.9), rgba(12, 15, 36, 0.9));
+      padding: 1.5rem 1.5rem;
+      text-align: center;
+      border-bottom: 2px solid #ffd966;
+    }
+
+    .header h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      background: linear-gradient(120deg, #FFF8E7, #FFE6A3);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .header h1 i {
+      background: none;
+      -webkit-background-clip: unset;
+      background-clip: unset;
+      color: #FFC857;
+      margin-right: 8px;
+    }
+
+    /* Wallet Card */
+    .wallet-card {
+      background: linear-gradient(145deg, #FFC857, #FFAE2B);
+      margin: 1.5rem;
+      padding: 1.8rem;
+      border-radius: 1.5rem;
+      text-align: center;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+      background-image: url('image/wallet.jpg');
+      background-size: cover;
+      background-position: center;
+    }
+
+    .wallet-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.35);
+      z-index: 0;
+    }
+
+    .wallet-card h3,
+    .wallet-card .balance {
+      position: relative;
+      z-index: 1;
+    }
+
+    .wallet-card h3 {
+      color: rgba(255, 255, 255, 0.95);
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+
+    .wallet-card .balance {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #ffffff;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    /* Menu List */
+    .menu-list {
+      margin: 1rem 1.5rem;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 1rem;
+      background: rgba(10, 12, 28, 0.65);
+      backdrop-filter: blur(8px);
+      border-radius: 1rem;
+      margin-bottom: 0.8rem;
+      cursor: pointer;
+      border: 1px solid rgba(255, 215, 0, 0.25);
+      transition: all 0.2s;
+    }
+
+    .menu-item:hover {
+      transform: translateX(5px);
+      border-color: rgba(255, 215, 0, 0.5);
+      background: rgba(255, 215, 0, 0.1);
+    }
+
+    .menu-item i {
+      font-size: 1.3rem;
+      color: #FFC857;
+      width: 35px;
+    }
+
+    .menu-item span {
+      flex: 1;
+      font-weight: 600;
+      color: #FFE6A3;
+    }
+
+    .menu-item small {
+      color: #9ba3e0;
+      font-size: 0.7rem;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 12, 28, 0.95);
+      backdrop-filter: blur(12px);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0.6rem 1rem;
+      border-top: 1px solid rgba(255, 215, 0, 0.2);
+      max-width: 550px;
+      margin: 0 auto;
+      z-index: 100;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 1.2rem;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .nav-icon {
+      font-size: 1.4rem;
+    }
+
+    .nav-label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #a3abdf;
+      letter-spacing: 0.3px;
+    }
+
+    .nav-item.active .nav-label {
+      color: #FFD966;
+      font-weight: 600;
+    }
+
+    .nav-item.active .nav-icon {
+      color: #FFD966;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 215, 0, 0.08);
+      transform: translateY(-2px);
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #1a1e3a;
+      border-radius: 1.5rem;
+      width: 90%;
+      max-width: 400px;
+      max-height: 80vh;
+      overflow-y: auto;
+      padding: 1.5rem;
+      animation: slideUp 0.3s ease;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-content h3 {
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      color: #FFE6A3;
+      text-align: center;
+    }
+
+    .modal-content h3 i {
+      color: #FFC857;
+      margin-right: 8px;
+    }
+
+    .payment-info {
+      background: rgba(10, 12, 28, 0.7);
+      border-radius: 1rem;
+      padding: 1rem;
+      margin: 1rem 0;
+      border: 1px solid rgba(255, 215, 0, 0.2);
+    }
+
+    .payment-method {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem;
+      border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+    }
+
+    .payment-method:last-child {
+      border-bottom: none;
+    }
+
+    /* Circle Logo Style for Payment Methods */
+    .payment-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
+      display: inline-block;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+
+    .method-name-wrapper {
+      display: flex;
+      align-items: center;
+    }
+
+    .payment-method .method-name {
+      font-weight: 700;
+      color: #FFE6A3;
+    }
+
+    .payment-method .method-details {
+      color: #FFC857;
+      font-weight: 600;
+    }
+
+    .payment-method .method-owner {
+      font-size: 0.7rem;
+      color: #9ba3e0;
+    }
+
+    .instruction {
+      font-size: 0.8rem;
+      color: #FFE6A3;
+      text-align: center;
+      margin: 0.8rem 0;
+      padding: 0.5rem;
+      background: rgba(255, 200, 87, 0.15);
+      border-radius: 0.8rem;
+      border: 1px solid rgba(255, 215, 0, 0.2);
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      border-radius: 0.8rem;
+      background: #0f122e;
+      color: white;
+    }
+
+    .modal-content input:focus {
+      outline: none;
+      border-color: #FFC857;
+    }
+
+    .modal-content input::placeholder {
+      color: #6c72a5;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .modal-buttons button {
+      flex: 1;
+      padding: 0.8rem;
+      border-radius: 2rem;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .confirm-btn {
+      background: linear-gradient(95deg, #FFC857, #FFAE2B);
+      color: #12142e;
+    }
+
+    .cancel-btn {
+      background: rgba(255, 255, 255, 0.1);
+      color: #b9c3ff;
+    }
+
+    .error-msg {
+      color: #ff6b6b;
+      font-size: 0.75rem;
+      display: none;
+      margin-bottom: 0.5rem;
+    }
+
+    .error-msg.show {
+      display: block;
+    }
+
+    .success-toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #10b981;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border-radius: 2rem;
+      font-size: 0.8rem;
+      z-index: 1000;
+      display: none;
+    }
+
+    /* History List */
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+
+    .history-item {
+      background: rgba(10, 12, 28, 0.7);
+      border-radius: 0.8rem;
+      padding: 0.8rem;
+      border: 1px solid rgba(255, 215, 0, 0.2);
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.3rem;
+      flex-wrap: wrap;
+    }
+
+    .history-status {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 1rem;
+      font-weight: 600;
+    }
+
+    .status-approved {
+      background: #10b981;
+      color: white;
+    }
+
+    .status-rejected {
+      background: #ef4444;
+      color: white;
+    }
+
+    .history-amount {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #FFC857;
+    }
+
+    .history-date {
+      font-size: 0.65rem;
+      color: #9ba3e0;
+      margin-top: 0.3rem;
+    }
+
+    .close-modal-btn {
+      margin-top: 1rem;
+      background: linear-gradient(95deg, #FFC857, #FFAE2B);
+      color: #12142e;
+      border: none;
+      padding: 0.7rem;
+      border-radius: 2rem;
+      width: 100%;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #9ba3e0;
+      padding: 2rem;
+    }
   </style>
-  <script>
-    function loadTheme() { const savedTheme = localStorage.getItem('diaZoneTheme'); if (savedTheme === 'dark') document.body.classList.add('dark'); else document.body.classList.remove('dark'); }
-    loadTheme();
-    if (window.Telegram && window.Telegram.WebApp) { const tg = window.Telegram.WebApp; tg.expand(); tg.ready(); }
-  </script>
 </head>
 <body>
 <div class="container">
-  <div class="header"><h1>My Wallet</h1></div>
-  <div class="wallet-card"><h3>Total Balance</h3><div class="balance" id="balanceAmount">0 Ks</div></div>
+  <div class="header">
+    <h1><i class="fas fa-wallet"></i>ပိုက်ဆံအိတ်</h1>
+  </div>
+  <div class="wallet-card">
+    <h3>လက်ကျန်ငွေ</h3>
+    <div class="balance" id="balanceAmount">0 ကျပ်</div>
+  </div>
   <div class="menu-list">
-    <div class="menu-item" id="topupBtn"><i class="fas fa-plus-circle"></i><span>Top Up</span><small>Add funds</small></div>
-    <div class="menu-item" id="transactionBtn"><i class="fas fa-history"></i><span>Transaction History</span><small>View all transactions</small></div>
+    <div class="menu-item" id="topupBtn">
+      <i class="fas fa-plus-circle"></i>
+      <span>ငွေဖြည့်ရန်</span>
+      <small></small>
+    </div>
+    <div class="menu-item" id="transactionBtn">
+      <i class="fas fa-history"></i>
+      <span>ငွေဖြည့်မှတ်တမ်း</span>
+      <small>မှတ်တမ်းများအားလုံးကြည့်ရန်</small>
+    </div>
   </div>
 </div>
 
 <!-- Top Up Modal -->
 <div id="topupModal" class="modal">
   <div class="modal-content">
-    <h3><i class="fas fa-wallet"></i> Top Up</h3>
+    <h3><i class="fas fa-wallet"></i>ငွေဖြည့်ရန်</h3>
     <div class="payment-info">
-      <div class="payment-method"><div><span class="method-name">💰 KBZ Pay</span><br><span class="method-owner">(Zaw Naing Tun)</span></div><div class="method-details">09 974 555 210</div></div>
-      <div class="payment-method"><div><span class="method-name">📱 Wave Money</span><br><span class="method-owner">(Zaw Naing Tun)</span></div><div class="method-details">09 974 555 210</div></div>
+      <div class="payment-method">
+        <div class="method-name-wrapper">
+          <div class="payment-logo" style="background-image: url('image/kpay.jpg');"></div>
+          <div><span class="method-name">KBZ Pay</span><br><span class="method-owner">(Zaw Naing Tun)</span></div>
+        </div>
+        <div class="method-details">09 974 555 210</div>
+      </div>
+      <div class="payment-method">
+        <div class="method-name-wrapper">
+          <div class="payment-logo" style="background-image: url('image/wave.jpg');"></div>
+          <div><span class="method-name">Wave Money</span><br><span class="method-owner">(Zaw Naing Tun)</span></div>
+        </div>
+        <div class="method-details">09 974 555 210</div>
+      </div>
     </div>
     <div class="instruction"><i class="fas fa-info-circle"></i> ငွေလွှဲပြီးပါက ပြေစာ ID နောက်ဆုံး 5 လုံးနှင့် လွှဲထားသောငွေပမာဏကို ထည့်ပါ</div>
     <input type="text" id="receiptId" placeholder="ပြေစာ ID (နောက်ဆုံး 5 လုံး)">
-    <input type="number" id="topupAmount" placeholder="လွှဲထားသောငွေပမာဏ (Ks)">
+    <input type="number" id="topupAmount" placeholder="လွှဲထားသောငွေပမာဏ (ကျပ်)">
     <div id="topupError" class="error-msg"></div>
-    <div class="modal-buttons"><button class="cancel-btn" id="cancelTopupBtn">Cancel</button><button class="confirm-btn" id="confirmTopupBtn">Submit Request</button></div>
+    <div class="modal-buttons">
+      <button class="cancel-btn" id="cancelTopupBtn">မလုပ်တော့ပါ</button>
+      <button class="confirm-btn" id="confirmTopupBtn">အတည်ပြုမည်</button>
+    </div>
   </div>
 </div>
 
 <!-- Transaction History Modal -->
 <div id="historyModal" class="modal">
   <div class="modal-content">
-    <h3><i class="fas fa-history"></i> Transaction History</h3>
-    <div id="historyList" class="history-list"><div class="empty-state">Loading...</div></div>
-    <button class="close-modal-btn" id="closeHistoryBtn">Close</button>
+    <h3><i class="fas fa-history"></i>ငွေဖြည့်မှတ်တမ်းများ</h3>
+    <div id="historyList" class="history-list"><div class="empty-state">လုပ်ဆောင်နေသည်...</div></div>
+    <button class="close-modal-btn" id="closeHistoryBtn">ပိတ်မည်</button>
   </div>
 </div>
 
-<div id="successToast" class="success-toast"><i class="fas fa-check-circle"></i> Top up request submitted! Admin will review.</div>
+<div id="successToast" class="success-toast"><i class="fas fa-check-circle"></i>Admin အတည်ပြုသည်ကိုစောင့်ပါ</div>
 
+<!-- Bottom Navigation -->
 <div class="bottom-nav">
-  <div class="nav-item" data-page="home"><i class="fas fa-home"></i><span>Home</span></div>
-  <div class="nav-item" data-page="games"><i class="fas fa-gamepad"></i><span>Games</span></div>
-  <div class="nav-item active" data-page="wallet"><i class="fas fa-wallet"></i><span>Wallet</span></div>
-  <div class="nav-item" data-page="orders"><i class="fas fa-shopping-bag"></i><span>Orders</span></div>
-  <div class="nav-item" data-page="profile"><i class="fas fa-user"></i><span>Profile</span></div>
+  <button class="nav-item" data-page="home">
+    <div class="nav-icon">🏠</div>
+    <div class="nav-label">ပင်မစာမျက်နှာ</div>
+  </button>
+  <button class="nav-item" data-page="games">
+    <div class="nav-icon">🎮</div>
+    <div class="nav-label">ဂိမ်းစာမျက်နှာ</div>
+  </button>
+  <button class="nav-item active" data-page="wallet">
+    <div class="nav-icon">👛</div>
+    <div class="nav-label">ပိုက်ဆံအိတ်</div>
+  </button>
+  <button class="nav-item" data-page="orders">
+    <div class="nav-icon">📦</div>
+    <div class="nav-label">မှတ်တမ်းများ</div>
+  </button>
+  <button class="nav-item" data-page="profile">
+    <div class="nav-icon">👤</div>
+    <div class="nav-label">ပရိုဖိုင်</div>
+  </button>
 </div>
 
 <script>
-  // --- Firebase Configuration ---
+  // Firebase Configuration
   const firebaseConfig = {
-    apiKey: "AIzaSyB8iE6D3N7X7qZxR9kLmNpQrStUvWxYz123456",
+    apiKey: "AIzaSyCZridqu0bhTRM5mzbRdfJxWic4xcG7rg4",
     authDomain: "dia-zone.firebaseapp.com",
     databaseURL: "https://dia-zone-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "dia-zone",
-    storageBucket: "dia-zone.appspot.com",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:abc123def456ghi789"
+    storageBucket: "dia-zone.firebasestorage.app",
+    messagingSenderId: "954378673786",
+    appId: "1:954378673786:web:fe6ab648f60eb5207665c3"
   };
 
   if (!firebase.apps.length) {
@@ -166,8 +575,7 @@
       try { 
         currentUser = JSON.parse(savedUser); 
         userId = currentUser.id || currentUser.userId;
-        console.log('User loaded:', currentUser.name, 'ID:', userId);
-        document.getElementById('balanceAmount').textContent = (currentUser.balance || 0).toLocaleString() + ' Ks'; 
+        document.getElementById('balanceAmount').textContent = (currentUser.balance || 0).toLocaleString() + ' ကျပ်'; 
       } catch(e) { console.error('Error loading user:', e); } 
     } else {
       window.location.href = 'login.html';
@@ -181,7 +589,7 @@
       if (snapshot.exists()) {
         const data = snapshot.val();
         currentUser.balance = data.balance || 0;
-        document.getElementById('balanceAmount').textContent = (currentUser.balance || 0).toLocaleString() + ' Ks';
+        document.getElementById('balanceAmount').textContent = (currentUser.balance || 0).toLocaleString() + ' ကျပ်';
         localStorage.setItem('diaZoneUser', JSON.stringify(currentUser));
       }
     });
@@ -191,7 +599,7 @@
     return 'TR-' + Date.now().toString() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase(); 
   }
 
-  // ============ TOP UP MODAL ============
+  // Top Up Modal
   const topupModal = document.getElementById('topupModal');
   
   function openTopupModal() { 
@@ -211,22 +619,22 @@
     errorDiv.classList.remove('show'); 
     
     if (!receiptId) { 
-      errorDiv.textContent = 'Please enter receipt ID'; 
+      errorDiv.textContent = 'ပြေစာ ID ထည့်ပါ'; 
       errorDiv.classList.add('show'); 
       return; 
     } 
     if (receiptId.length < 3) { 
-      errorDiv.textContent = 'Receipt ID must be at least 3 characters'; 
+      errorDiv.textContent = 'ပြေစာ ID အနည်းဆုံး 3 လုံးရှိရပါမယ်'; 
       errorDiv.classList.add('show'); 
       return; 
     } 
     if (isNaN(amount) || amount <= 0) { 
-      errorDiv.textContent = 'Please enter a valid amount'; 
+      errorDiv.textContent = 'မှန်ကန်သောငွေပမာဏထည့်ပါ'; 
       errorDiv.classList.add('show'); 
       return; 
     } 
     if (amount < 1000) { 
-      errorDiv.textContent = 'Minimum top up amount is 1000 Ks'; 
+      errorDiv.textContent = 'အနည်းဆုံး 1000 ကျပ်ဖြည့်ရပါမယ်'; 
       errorDiv.classList.add('show'); 
       return; 
     } 
@@ -245,78 +653,65 @@
       requestDateDisplay: new Date().toLocaleString() 
     }; 
     
-    console.log('Submitting topup request:', topupRequest);
-    
     db.ref('topups/' + topupRequest.id).set(topupRequest).then(() => {
-      console.log('Topup request saved successfully');
       closeTopupModal(); 
       const toast = document.getElementById('successToast'); 
       toast.style.display = 'block'; 
       setTimeout(() => { toast.style.display = 'none'; }, 3000);
     }).catch(error => {
-      console.error('Error saving topup:', error);
-      errorDiv.textContent = 'Failed to submit. Try again.';
+      errorDiv.textContent = 'မအောင်မြင်ပါ။ ထပ်မံကြိုးစားပါ။';
       errorDiv.classList.add('show');
     });
   }
 
-  // ============ TRANSACTION HISTORY MODAL ============
+  // Transaction History Modal
   const historyModal = document.getElementById('historyModal');
   
   function openHistoryModal() {
-    console.log('Opening history modal, userId:', userId);
     historyModal.classList.add('show');
-    document.getElementById('historyList').innerHTML = '<div class="empty-state">Loading...</div>';
+    document.getElementById('historyList').innerHTML = '<div class="empty-state">ဖွင့်နေသည်...</div>';
     
-    // Load topup requests from Firebase
     db.ref('topups').orderByChild('userId').equalTo(userId).once('value', (snapshot) => {
       const historyList = document.getElementById('historyList');
       const completedRequests = [];
       
-      console.log('Topups snapshot exists:', snapshot.exists());
-      
       snapshot.forEach((child) => {
         const req = child.val();
-        console.log('Found topup:', req.id, 'Status:', req.status);
         if (req.status === 'Approved' || req.status === 'Rejected') {
           completedRequests.push(req);
         }
       });
       
-      console.log('Completed requests count:', completedRequests.length);
-      
-      // Sort by date (newest first)
       completedRequests.reverse();
       
       if (completedRequests.length === 0) {
-        historyList.innerHTML = '<div class="empty-state">No transaction history yet.<br>Your approved/rejected topups will appear here.</div>';
+        historyList.innerHTML = '<div class="empty-state">ငွေဖြည့်မှတ်တမ်း မရှိသေးပါ။<br>အတည်ပြုပြီးအကြောင်းအရာများ ဤနေရာတွင်ပေါ်ပါမည်။</div>';
       } else {
         historyList.innerHTML = '';
         completedRequests.forEach(req => {
           const statusClass = req.status === 'Approved' ? 'status-approved' : 'status-rejected';
-          const statusText = req.status === 'Approved' ? '✅ Approved' : '❌ Rejected';
+          const statusText = req.status === 'Approved' ? '✅ အတည်ပြုပြီး' : '❌ ပယ်ချပြီး';
           const item = document.createElement('div');
           item.className = 'history-item';
           item.innerHTML = `
             <div class="history-header">
               <span class="history-status ${statusClass}">${statusText}</span>
-              <span class="history-amount">${(req.amount || 0).toLocaleString()} Ks</span>
+              <span class="history-amount">${(req.amount || 0).toLocaleString()} ကျပ်</span>
             </div>
-            <div><small>Receipt: ${req.receiptId || 'N/A'}</small></div>
+            <div><small>ပြေစာ: ${req.receiptId || 'N/A'}</small></div>
             <div class="history-date"><i class="far fa-calendar-alt"></i> ${req.requestDateDisplay}</div>
           `;
           historyList.appendChild(item);
         });
       }
     }).catch(error => {
-      console.error('Error loading topups:', error);
-      document.getElementById('historyList').innerHTML = '<div class="empty-state">Error loading history. Please try again.</div>';
+      document.getElementById('historyList').innerHTML = '<div class="empty-state">မှတ်တမ်းရယူရာတွင် အမှားရှိပါသည်။</div>';
     });
   }
   
   function closeHistoryModal() { historyModal.classList.remove('show'); }
 
-  // ============ EVENT LISTENERS ============
+  // Event Listeners
   document.getElementById('topupBtn').addEventListener('click', openTopupModal);
   document.getElementById('cancelTopupBtn').addEventListener('click', closeTopupModal);
   document.getElementById('confirmTopupBtn').addEventListener('click', submitTopupRequest);
@@ -328,7 +723,7 @@
     if (e.target === historyModal) closeHistoryModal(); 
   });
 
-  // ============ BOTTOM NAVIGATION ============
+// Bottom Navigation
   document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
       const page = item.dataset.page;
