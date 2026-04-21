@@ -1,281 +1,543 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="my">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Dia Zone - Home</title>
-  
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Dia Zone - Home</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js?62"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <script src="https://telegram.org/js/telegram-web-app.js?62"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  
-  <style>
-    :root { --bg-body: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%); --bg-container: white; --text-primary: #0f172a; --text-secondary: #475569; --border-color: #e2e8f0; --card-bg: #f8fafc; --header-bg: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); --menu-bg: white; --menu-hover: #f1f5f9; --logout-bg: #fee2e2; --logout-text: #b91c1c; --logout-hover: #fecaca; --modal-bg: white; --input-border: #e2e8f0; }
-    body.dark { --bg-body: linear-gradient(135deg, #0f172a 0%, #1e1b2e 100%); --bg-container: #1e293b; --text-primary: #f1f5f9; --text-secondary: #94a3b8; --border-color: #334155; --card-bg: #0f172a; --header-bg: linear-gradient(135deg, #020617 0%, #0f172a 100%); --menu-bg: #1e293b; --menu-hover: #334155; --logout-bg: #7f1d1d; --logout-text: #fecaca; --logout-hover: #991b1b; --modal-bg: #1e293b; --input-border: #475569; }
-    * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.3s ease, color 0.2s ease; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg-body); min-height: 100vh; padding: 1rem; padding-bottom: 80px; }
-    .dashboard-container { max-width: 600px; margin: 0 auto; background: var(--bg-container); border-radius: 2rem; box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25); overflow: hidden; }
-    .header { background: var(--header-bg); padding: 1.2rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
-    .logo h1 { color: white; font-size: 1.5rem; font-weight: 700; }
-    .menu-btn { background: rgba(255,255,255,0.15); border: none; color: white; font-size: 1.6rem; cursor: pointer; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-    .dropdown-menu { position: absolute; top: 75px; right: 20px; background: var(--menu-bg); border-radius: 1rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15); width: 220px; overflow: hidden; z-index: 100; display: none; animation: fadeIn 0.2s ease; }
-    .dropdown-menu.show { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-    .dropdown-menu a { display: flex; align-items: center; gap: 12px; padding: 12px 18px; color: var(--text-primary); text-decoration: none; font-size: 0.9rem; font-weight: 500; border-bottom: 1px solid var(--border-color); cursor: pointer; }
-    .dropdown-menu a:hover { background: var(--menu-hover); }
-    .dropdown-menu i { width: 22px; color: #3b82f6; }
-    .content { padding: 1.8rem 1.5rem 2rem; }
-    .welcome-text { text-align: center; margin-bottom: 2rem; }
-    .welcome-text h2 { font-size: 1.3rem; font-weight: 600; color: var(--text-primary); }
-    .game-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; margin-bottom: 1.5rem; }
-    .game-card { background: var(--card-bg); border-radius: 1.2rem; padding: 1rem 0.8rem; text-align: center; cursor: pointer; border: 1px solid var(--border-color); transition: all 0.2s; }
-    .game-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); background: var(--bg-container); }
-    .game-icon { width: 55px; height: 55px; background: linear-gradient(145deg, #3b82f6, #1d4ed8); border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.7rem; }
-    .game-icon i { font-size: 1.8rem; color: white; }
-    .game-name { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.3rem; }
-    .buy-btn { background: #0f172a; color: white; border: none; padding: 0.4rem 1rem; border-radius: 2rem; font-size: 0.7rem; font-weight: 600; cursor: pointer; margin-top: 0.5rem; width: 100%; }
-    .buy-btn:hover { background: #3b82f6; }
-    .bottom-links { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color); }
-    .bottom-link { text-align: center; cursor: pointer; }
-    .bottom-link i { font-size: 1.5rem; color: #3b82f6; display: block; margin-bottom: 0.3rem; }
-    .bottom-link span { font-size: 0.7rem; font-weight: 500; color: var(--text-secondary); }
-    .logout-btn { margin-top: 1.5rem; background: var(--logout-bg); color: var(--logout-text); border: none; width: 100%; padding: 0.8rem; border-radius: 2rem; font-weight: 700; cursor: pointer; }
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-container); display: flex; justify-content: space-around; align-items: center; padding: 0.6rem 1rem; border-top: 1px solid var(--border-color); max-width: 600px; margin: 0 auto; z-index: 100; }
-    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
-    .nav-item i { font-size: 1.3rem; color: #94a3b8; }
-    .nav-item span { font-size: 0.65rem; color: #94a3b8; }
-    .nav-item.active i, .nav-item.active span { color: #3b82f6; }
-    .chat-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-    .chat-modal.show { display: flex; }
-    .chat-container { width: 90%; max-width: 400px; background: var(--modal-bg); border-radius: 1.5rem; overflow: hidden; }
-    .chat-header { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
-    .chat-messages { height: 350px; overflow-y: auto; padding: 1rem; background: var(--card-bg); display: flex; flex-direction: column; gap: 10px; }
-    .message { max-width: 85%; padding: 8px 12px; border-radius: 15px; font-size: 0.85rem; }
-    .message.user { background: #3b82f6; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-    .message.admin { background: var(--border-color); color: var(--text-primary); align-self: flex-start; border-bottom-left-radius: 2px; }
-    .chat-input-area { display: flex; padding: 10px; background: var(--bg-container); gap: 5px; }
-    .chat-input-area input { flex: 1; padding: 10px; border-radius: 20px; border: 1px solid var(--border-color); outline: none; }
-    .chat-input-area button { background: #3b82f6; color: white; border: none; padding: 0 15px; border-radius: 20px; }
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-    .modal.show { display: flex; }
-    .modal-content { background: var(--modal-bg); border-radius: 1.5rem; width: 90%; max-width: 350px; padding: 1.5rem; text-align: center; }
-  </style>
+        body {
+            background: linear-gradient(145deg, #0b0c1a 0%, #11132a 100%);
+            font-family: 'Inter', 'Poppins', 'Myanmar Text', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            padding-bottom: 85px;
+            background-image: url('image/layla.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* Main Card */
+        .game-card {
+            max-width: 550px;
+            width: 100%;
+            background: rgba(18, 22, 48, 0.75);
+            backdrop-filter: blur(12px);
+            border-radius: 2.5rem;
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            transition: transform 0.2s ease;
+        }
+
+        .game-card:hover {
+            transform: scale(1.01);
+        }
+
+        /* Hero Section */
+        .hero-glow {
+            background: linear-gradient(135deg, rgba(30, 35, 72, 0.9), rgba(12, 15, 36, 0.9));
+            padding: 2rem 1.8rem 1.8rem;
+            border-bottom: 2px solid #ffd966;
+            text-align: center;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 215, 0, 0.18);
+            backdrop-filter: blur(4px);
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: #ffdf8c;
+            border: 0.5px solid #ffd966;
+            margin-bottom: 1rem;
+        }
+
+        /* Logo and Title Container */
+        .logo-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Circle Logo Style */
+        .circle-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(145deg, #FFC857, #FFAE2B);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background-image: url('image/logo.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .circle-logo i {
+            font-size: 2rem;
+            color: #12142e;
+        }
+
+        h1 {
+            font-size: 2.7rem;
+            font-weight: 800;
+            background: linear-gradient(120deg, #FFF8E7, #FFE6A3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+            margin: 0;
+        }
+
+        .welcome-block {
+            margin: 1.2rem 0 0.5rem;
+        }
+
+        .greeting {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #b9c3ff;
+        }
+
+        .username {
+            font-size: 1.9rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFE6B0, #FFC857);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+            margin-top: 0.2rem;
+        }
+
+        .store-tag {
+            font-size: 0.85rem;
+            color: #9ba3e0;
+            margin-top: 0.3rem;
+        }
+
+        /* Balance Area */
+        .balance-area {
+            background: rgba(0, 0, 0, 0.5);
+            margin: 1.5rem 1.5rem 0 1.5rem;
+            border-radius: 2rem;
+            padding: 1.3rem 1rem;
+            text-align: center;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 200, 70, 0.3);
+            background-image: url('image/wallet.jpg');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+        }
+
+        .balance-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #b7c0ff;
+        }
+
+        .balance-value {
+            font-size: 3.2rem;
+            font-weight: 800;
+            background: linear-gradient(145deg, #FFE6AA, #FFCF6E);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+        }
+
+        .currency {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #FFDA88;
+        }
+
+        /* CTA Button - Bigger Size */
+        .browse-btn {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(95deg, #FFC857, #FFAE2B);
+            margin: 1.8rem 1.5rem 0.5rem 1.5rem;
+            padding: 1.2rem 2rem;
+            border-radius: 60px;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: white;
+            transition: all 0.2s;
+            box-shadow: 0 10px 18px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 200, 0.6);
+            background-image: url('image/game.jpg');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+        }
+
+        .browse-btn span:first-child {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .browse-btn span:first-child i {
+            font-size: 1.6rem;
+        }
+
+        .browse-btn span:last-child {
+            font-size: 1.8rem;
+            transition: transform 0.2s;
+        }
+
+        .browse-btn:hover {
+            background: linear-gradient(95deg, #FFD46E, #FFB83B);
+            transform: scale(1.02);
+        }
+
+        .browse-btn:hover span:last-child {
+            transform: translateX(8px);
+        }
+
+        /* Bottom Navigation - Fixed at bottom */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 12, 28, 0.95);
+            backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0.6rem 1rem;
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+            max-width: 550px;
+            margin: 0 auto;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 1.2rem;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .nav-icon {
+            font-size: 1.4rem;
+        }
+
+        .nav-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #a3abdf;
+            letter-spacing: 0.3px;
+        }
+
+        .nav-item.active .nav-label {
+            color: #FFD966;
+            font-weight: 600;
+        }
+
+        .nav-item.active .nav-icon {
+            color: #FFD966;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 215, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        /* Logout Button */
+        .logout-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0.8rem 1rem 1rem 1rem;
+        }
+
+        .logout-btn {
+            background: rgba(255, 70, 70, 0.15);
+            border: 1px solid rgba(255, 110, 110, 0.4);
+            padding: 0.7rem 2rem;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #ffaeae;
+            cursor: pointer;
+            transition: 0.2s;
+            backdrop-filter: blur(4px);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-family: inherit;
+            width: auto;
+            min-width: 140px;
+            justify-content: center;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 80, 80, 0.3);
+            color: #fff0f0;
+            border-color: #ff8a8a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 70, 70, 0.2);
+        }
+
+        /* footer */
+        .footer-note {
+            text-align: center;
+            font-size: 0.65rem;
+            color: #4c5290;
+            padding: 1rem 1rem 1.5rem;
+        }
+
+        hr {
+            border-color: rgba(255, 215, 0, 0.1);
+            margin: 0 1rem;
+        }
+
+        @media (max-width: 550px) {
+            body {
+                padding: 1rem;
+                padding-bottom: 85px;
+            }
+            .circle-logo {
+                width: 50px;
+                height: 50px;
+            }
+            .circle-logo i {
+                font-size: 1.6rem;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .username {
+                font-size: 1.5rem;
+            }
+            .balance-value {
+                font-size: 2.6rem;
+            }
+            .logout-btn {
+                padding: 0.6rem 1.5rem;
+                font-size: 0.85rem;
+                min-width: 120px;
+            }
+            .browse-btn {
+                padding: 1rem 1.5rem;
+                font-size: 1.1rem;
+                margin: 1.5rem 1rem 0.5rem 1rem;
+            }
+            .browse-btn span:first-child i {
+                font-size: 1.3rem;
+            }
+            .browse-btn span:last-child {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="game-card">
+        <!-- Hero -->
+        <div class="hero-glow">
+            <div class="badge">✨ PREMIUM ZONE ✨</div>
+            
+            <!-- Logo with Title -->
+            <div class="logo-title">
+                <div class="circle-logo">
+                    <i class="fas fa-gem"></i>
+                </div>
+                <h1>Dia Zone</h1>
+            </div>
+            
+            <div class="welcome-block">
+                <div class="greeting">မှ ကြိုဆိုပါတယ်၊</div>
+                <div class="username" id="displayUserName">Joker</div>
+                <div class="store-tag">⚡ Game items များကို ယုံကြည်စိတ်ချစွာ ဝယ်ယူနိုင်ပါသည် ⚡</div>
+            </div>
+        </div>
 
-<div class="dashboard-container">
-  <div class="header">
-    <div class="logo"><h1>Dia Zone</h1></div>
-    <button class="menu-btn" id="menuBtn"><i class="fas fa-bars"></i></button>
-    <div class="dropdown-menu" id="dropdownMenu">
-      <a id="profileMenu"><i class="fas fa-user-circle"></i> Profile</a>
-      <a id="historyMenu"><i class="fas fa-history"></i> History</a>
-      <a id="settingsMenu"><i class="fas fa-cog"></i> Settings</a>
-      <a id="logoutFromMenu"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        <!-- Balance Area -->
+        <div class="balance-area">
+            <div class="balance-label">လက်ကျန်ငွေ</div>
+            <div class="balance-value" id="displayUserBalance">
+                0 <span class="currency">ကျပ်</span>
+            </div>
+        </div>
+
+        <!-- Browse All Games Button - Bigger -->
+        <a href="games.html" class="browse-btn" id="browseBtn">
+            <span><i class="fas fa-gamepad"></i> ဂိမ်းများစာရင်း</span>
+            <span>→</span>
+        </a>
+
+        <!-- Logout Button -->
+        <div class="logout-center">
+            <button class="logout-btn" id="logoutBtn">
+                🚪 ထွက်မည်
+            </button>
+        </div>
+
+        <hr />
+        <div class="footer-note">
+            Dia Zone &nbsp;|&nbsp; အကောင်းဆုံးဂိမ်းများ
+        </div>
     </div>
-  </div>
-  <div class="content">
-    <div class="welcome-text"><h2>Welcome, <span id="welcomeUserName">User</span></h2></div>
-    <div class="game-grid" id="gameGrid"></div>
-    <div class="bottom-links">
-      <div class="bottom-link" id="rulesLink"><i class="fas fa-file-alt"></i><span>App Rules</span></div>
-      <div class="bottom-link" id="contactAdminBtn"><i class="fas fa-headset"></i><span>Contact Admin</span></div>
+
+    <!-- Bottom Navigation - Fixed at bottom -->
+    <div class="bottom-nav">
+        <button class="nav-item active" data-page="home">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">ပင်မစာမျက်နှာ</div>
+        </button>
+        <button class="nav-item" data-page="game">
+            <div class="nav-icon">🎮</div>
+            <div class="nav-label">ဂိမ်းစာမျက်နှာ</div>
+        </button>
+        <button class="nav-item" data-page="wallet">
+            <div class="nav-icon">👛</div>
+            <div class="nav-label">ပိုက်ဆံအိတ်</div>
+        </button>
+        <button class="nav-item" data-page="orders">
+            <div class="nav-icon">📦</div>
+            <div class="nav-label">မှတ်တမ်းများ</div>
+        </button>
+        <button class="nav-item" data-page="profile">
+            <div class="nav-icon">👤</div>
+            <div class="nav-label">ပရိုဖိုင်</div>
+        </button>
     </div>
-    <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-  </div>
-</div>
 
-<div id="themeModal" class="modal"><div class="modal-content"><h3>Theme Settings</h3><div style="display:flex;gap:10px;margin-top:15px;"><button style="flex:1;padding:10px;" onclick="setTheme('light')">Light</button><button style="flex:1;padding:10px;background:#0f172a;color:white;" onclick="setTheme('dark')">Dark</button></div><button onclick="document.getElementById('themeModal').classList.remove('show')" style="margin-top:15px;width:100%;padding:10px;">Close</button></div></div>
-
-<div id="chatModal" class="chat-modal">
-  <div class="chat-container">
-    <div class="chat-header"><span>Support Chat</span><button onclick="document.getElementById('chatModal').classList.remove('show')" style="background:none;border:none;color:white;font-size:1.5rem;cursor:pointer;">&times;</button></div>
-    <div class="chat-messages" id="chatMessages"></div>
-    <div class="chat-input-area"><input type="text" id="chatInput" placeholder="Message..."><button id="sendMsgBtn">Send</button></div>
-  </div>
-</div>
-
-<div class="bottom-nav">
-  <div class="nav-item active" data-page="home"><i class="fas fa-home"></i><span>Home</span></div>
-  <div class="nav-item" data-page="games"><i class="fas fa-gamepad"></i><span>Games</span></div>
-  <div class="nav-item" data-page="wallet"><i class="fas fa-wallet"></i><span>Wallet</span></div>
-  <div class="nav-item" data-page="orders"><i class="fas fa-shopping-bag"></i><span>Orders</span></div>
-  <div class="nav-item" data-page="profile"><i class="fas fa-user"></i><span>Profile</span></div>
-</div>
-
-<script>
-  // --- Firebase Configuration (သင်၏ Project Settings မှ တန်ဖိုးများ ထည့်ပါ) ---
-  const firebaseConfig = {
-    apiKey: "AIzaSyB8iE6D3N7X7qZxR9kLmNpQrStUvWxYz123456",
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCZridqu0bhTRM5mzbRdfJxWic4xcG7rg4",
     authDomain: "dia-zone.firebaseapp.com",
     databaseURL: "https://dia-zone-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "dia-zone",
-    storageBucket: "dia-zone.appspot.com",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:abc123def456ghi789"
-  };
+    storageBucket: "dia-zone.firebasestorage.app",
+    messagingSenderId: "954378673786",
+    appId: "1:954378673786:web:fe6ab648f60eb5207665c3"
+};
 
-  // Initialize Firebase
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-  const db = firebase.database();
-
-  // --- Theme Logic ---
-  if (localStorage.getItem('diaZoneTheme') === 'dark') document.body.classList.add('dark');
-  window.setTheme = function(theme) {
-    if (theme === 'dark') document.body.classList.add('dark');
-    else document.body.classList.remove('dark');
-    localStorage.setItem('diaZoneTheme', theme);
-  };
-
-  // --- User Logic ---
-  let currentUser = JSON.parse(localStorage.getItem('diaZoneUser') || sessionStorage.getItem('diaZoneUser') || 'null');
-  if (!currentUser) {
-    window.location.href = 'login.html';
-  } else {
-    document.getElementById('welcomeUserName').innerText = currentUser.name || currentUser.userName || 'User';
-    
-    // Real-time Sync User Data using userId (Firebase key)
-    const userId = currentUser.id || currentUser.userId;
-    if (userId) {
-      const userRef = db.ref('users/' + userId);
-      userRef.on('value', (snapshot) => {
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          currentUser = { ...currentUser, ...data, id: userId };
-          localStorage.setItem('diaZoneUser', JSON.stringify(currentUser));
-          sessionStorage.setItem('diaZoneUser', JSON.stringify(currentUser));
-          document.getElementById('welcomeUserName').innerText = currentUser.name;
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
         }
-      });
-    }
-  }
+        const db = firebase.database();
 
-  // --- Games Logic ---
-  const DEFAULT_GAMES = [
-    "Mobile Legend", "Pubg", "Genshin Impact", "Free Fire",
-    "Heartopia", "Where Winds Meet", "MCGG", "EAFC Mobile My",
-    "Honkai Star Rail", "Honor of King", "Ace Racer", "Solo Leveling Arise",
-    "Sherry Potter", "Blood Strike", "Zenless Zone Zero", "CarX Street",
-    "Arena Breakout", "Life After", "Delta Force", "Once Human Mobile"
-  ];
-  
-  const gameIcons = { 
-    "Mobile Legend":"fa-gamepad","Pubg":"fa-crosshairs","Genshin Impact":"fa-dragon","Free Fire":"fa-fire",
-    "Heartopia":"fa-heart","Where Winds Meet":"fa-wind","MCGG":"fa-robot","EAFC Mobile My":"fa-futbol",
-    "Honkai Star Rail":"fa-train","Honor of King":"fa-crown","Ace Racer":"fa-car","Solo Leveling Arise":"fa-skull",
-    "Sherry Potter":"fa-hat-wizard","Blood Strike":"fa-bolt","Zenless Zone Zero":"fa-charging-station",
-    "CarX Street":"fa-road","Arena Breakout":"fa-shield-alt","Life After":"fa-tree",
-    "Delta Force":"fa-fist-raised","Once Human Mobile":"fa-user-astronaut"
-  };
+        // Get current user
+        let currentUser = JSON.parse(localStorage.getItem('diaZoneUser') || sessionStorage.getItem('diaZoneUser') || 'null');
+        
+        if (!currentUser) {
+            window.location.href = 'login.html';
+        }
 
-  function renderGames(gamesData) {
-    const grid = document.getElementById('gameGrid');
-    grid.innerHTML = '';
-    
-    let gameList = DEFAULT_GAMES;
-    if (gamesData) {
-      if (Array.isArray(gamesData)) {
-        gameList = gamesData;
-      } else if (typeof gamesData === 'object') {
-        gameList = Object.values(gamesData);
-      }
-    }
-    
-    gameList.forEach(game => {
-      const card = document.createElement('div');
-      card.className = 'game-card';
-      const icon = gameIcons[game] || "fa-gamepad";
-      card.innerHTML = `<div class="game-icon"><i class="fas ${icon}"></i></div><div class="game-name">${game}</div><button class="buy-btn">Buy Now</button>`;
-      card.onclick = (e) => {
-        if (e.target.classList.contains('buy-btn')) e.stopPropagation();
-        if (game === 'Mobile Legend') window.location.href = 'ml-diamonds.html';
-        else if (game === 'Pubg') window.location.href = 'pubg-uc.html';
-        else alert(game + " coming soon!");
-      };
-      grid.appendChild(card);
-    });
-  }
+        const userId = currentUser.id || currentUser.userId;
 
-  // Fetch Games Real-time
-  db.ref('settings/games').on('value', (snapshot) => {
-    renderGames(snapshot.val());
-  });
+        // Display user info
+        function displayUserInfo(data) {
+            document.getElementById('displayUserName').textContent = data.name || 'User';
+            document.getElementById('displayUserBalance').innerHTML = (data.balance || 0).toLocaleString() + ' <span class="currency">ကျပ်</span>';
+        }
 
-  // --- Chat Logic ---
-  const chatMessagesDiv = document.getElementById('chatMessages');
-  const chatInput = document.getElementById('chatInput');
-  let currentChatRef = null;
+        // Real-time user data
+        if (userId) {
+            db.ref('users/' + userId).on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    currentUser = { ...currentUser, ...data, id: userId };
+                    localStorage.setItem('diaZoneUser', JSON.stringify(currentUser));
+                    sessionStorage.setItem('diaZoneUser', JSON.stringify(currentUser));
+                    displayUserInfo(data);
+                } else {
+                    displayUserInfo(currentUser);
+                }
+            });
+        } else {
+            displayUserInfo(currentUser);
+        }
 
-  document.getElementById('contactAdminBtn').onclick = () => {
-    document.getElementById('chatModal').classList.add('show');
-    const chatId = currentUser.id || currentUser.userId || currentUser.phone;
-    if (!chatId) return;
-    
-    if (currentChatRef) currentChatRef.off();
-    currentChatRef = db.ref('chats/' + chatId);
-    currentChatRef.on('value', (snapshot) => {
-      chatMessagesDiv.innerHTML = '';
-      if (!snapshot.exists()) {
-        chatMessagesDiv.innerHTML = '<div style="text-align:center;color:gray;padding:20px;">No messages yet</div>';
-        return;
-      }
-      const messages = [];
-      snapshot.forEach(child => messages.push(child.val()));
-      messages.reverse().forEach(msg => {
-        const div = document.createElement('div');
-        div.className = 'message ' + (msg.sender === 'user' ? 'user' : 'admin');
-        div.innerText = msg.text;
-        chatMessagesDiv.appendChild(div);
-      });
-      chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
-    });
-  };
+        // Navigation Buttons
+        const navButtons = document.querySelectorAll('.nav-item');
+        const logoutBtn = document.getElementById('logoutBtn');
 
-  document.getElementById('sendMsgBtn').onclick = () => {
-    const text = chatInput.value.trim();
-    if (!text) return;
-    const chatId = currentUser.id || currentUser.userId || currentUser.phone;
-    if (!chatId) return;
-    db.ref('chats/' + chatId).push({ 
-      text: text, 
-      sender: 'user', 
-      timestamp: Date.now(),
-      userName: currentUser.name
-    });
-    chatInput.value = '';
-  };
+        function navigateTo(page) {
+            let targetPage = '';
+            switch(page) {
+                case 'home':
+                    targetPage = 'dashboard.html';
+                    break;
+                case 'game':
+                    targetPage = 'games.html';
+                    break;
+                case 'wallet':
+                    targetPage = 'wallet.html';
+                    break;
+                case 'orders':
+                    targetPage = 'orders.html';
+                    break;
+                case 'profile':
+                    targetPage = 'profile.html';
+                    break;
+                default:
+                    return;
+            }
+            window.location.href = targetPage;
+        }
 
-  chatInput.onkeypress = (e) => { if (e.key === 'Enter') document.getElementById('sendMsgBtn').click(); };
+        navButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const page = btn.getAttribute('data-page');
+                navigateTo(page);
+            });
+        });
 
-  // --- UI/Menu Handlers ---
-  document.getElementById('menuBtn').onclick = (e) => { 
-    e.stopPropagation(); 
-    document.getElementById('dropdownMenu').classList.toggle('show'); 
-  };
-  window.onclick = () => document.getElementById('dropdownMenu').classList.remove('show');
-  document.getElementById('settingsMenu').onclick = () => document.getElementById('themeModal').classList.add('show');
-  document.getElementById('rulesLink').onclick = () => alert('App Rules: ငွေဖြည့်သွင်းရာတွင် ပြေစာ ID မှန်ကန်စွာ ထည့်သွင်းရန်');
-  
-  document.getElementById('logoutBtn').onclick = () => { 
-    localStorage.removeItem('diaZoneUser'); 
-    sessionStorage.removeItem('diaZoneUser');
-    window.location.href = 'login.html'; 
-  };
-  document.getElementById('logoutFromMenu').onclick = () => document.getElementById('logoutBtn').click();
-  document.getElementById('profileMenu').onclick = () => window.location.href = 'profile.html';
-  document.getElementById('historyMenu').onclick = () => window.location.href = 'orders.html';
-
-  document.querySelectorAll('.nav-item').forEach(item => {
-    item.onclick = () => {
-      const page = item.dataset.page;
-      window.location.href = (page === 'home') ? 'dashboard.html' : page + '.html';
-    };
-  });
-</script>
+        // Logout
+        if(logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.removeItem('diaZoneUser');
+                sessionStorage.removeItem('diaZoneUser');
+                alert("🔓 ထွက်ခွာမည်။ login page သို့ ပြန်သွားပါမည်။");
+                window.location.href = "login.html";
+            });
+        }
+    </script>
 </body>
 </html>
