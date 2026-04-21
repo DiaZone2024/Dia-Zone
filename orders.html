@@ -1,96 +1,331 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="my">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>My Orders</title>
+  <title>Dia Zone - My Orders</title>
   
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
   <script src="https://telegram.org/js/telegram-web-app.js?62"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    :root { --bg-body: #f1f5f9; --bg-container: white; --text-primary: #0f172a; --text-secondary: #475569; --border-color: #e2e8f0; --card-bg: #f8fafc; --header-bg: linear-gradient(135deg, #0f172a, #1e293b); --status-pending: #f59e0b; --status-completed: #10b981; --status-cancelled: #ef4444; }
-    body.dark { --bg-body: #0f172a; --bg-container: #1e293b; --text-primary: #f1f5f9; --text-secondary: #94a3b8; --border-color: #334155; --card-bg: #0f172a; --header-bg: linear-gradient(135deg, #020617, #0f172a); }
-    * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.3s ease, color 0.2s ease; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg-body); min-height: 100vh; padding-bottom: 80px; }
-    .container { max-width: 500px; margin: 0 auto; background: var(--bg-container); min-height: 100vh; }
-    .header { background: var(--header-bg); padding: 1.2rem 1.5rem; text-align: center; position: relative; }
-    .back-btn { position: absolute; left: 1.2rem; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.15); border: none; color: white; font-size: 0.85rem; cursor: pointer; padding: 0.4rem 1rem; border-radius: 2rem; display: flex; align-items: center; gap: 6px; }
-    .header h1 { color: white; font-size: 1.3rem; font-weight: 700; }
-    .orders-list { padding: 1rem; display: flex; flex-direction: column; gap: 1rem; }
-    .order-card { background: var(--card-bg); border-radius: 1rem; padding: 1rem; border: 1px solid var(--border-color); }
-    .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem; }
-    .order-id { font-size: 0.7rem; color: var(--text-secondary); font-family: monospace; }
-    .order-status { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 2rem; font-size: 0.65rem; font-weight: 600; }
-    .status-pending { background: var(--status-pending); color: white; }
-    .status-completed { background: var(--status-completed); color: white; }
-    .status-cancelled { background: var(--status-cancelled); color: white; }
-    .order-product { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; }
-    .order-product i { color: #3b82f6; margin-right: 0.3rem; }
-    .order-details { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.5rem; font-size: 0.8rem; color: var(--text-secondary); }
-    .order-details span { display: flex; align-items: center; gap: 0.3rem; }
-    .order-amount { font-size: 1rem; font-weight: 700; color: #3b82f6; margin-top: 0.3rem; }
-    .order-date { font-size: 0.65rem; color: var(--text-secondary); margin-top: 0.5rem; }
-    .empty-state { text-align: center; padding: 3rem 1.5rem; }
-    .empty-state i { font-size: 4rem; color: #cbd5e1; margin-bottom: 1rem; }
-    .empty-state p { color: var(--text-secondary); }
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-container); display: flex; justify-content: space-around; align-items: center; padding: 0.6rem 1rem; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); border-top: 1px solid var(--border-color); max-width: 500px; margin: 0 auto; z-index: 100; }
-    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 0.3rem 0.8rem; }
-    .nav-item i { font-size: 1.3rem; color: #94a3b8; }
-    .nav-item span { font-size: 0.65rem; color: #94a3b8; font-weight: 500; }
-    .nav-item.active i, .nav-item.active span { color: #3b82f6; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #0b0c1a 0%, #11132a 100%);
+      font-family: 'Inter', 'Poppins', 'Myanmar Text', sans-serif;
+      min-height: 100vh;
+      padding-bottom: 85px;
+      background-image: url('image/layla.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    .container {
+      max-width: 550px;
+      margin: 0 auto;
+      background: rgba(18, 22, 48, 0.75);
+      backdrop-filter: blur(12px);
+      min-height: 100vh;
+      border-radius: 2rem;
+      box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, rgba(30, 35, 72, 0.9), rgba(12, 15, 36, 0.9));
+      padding: 1.5rem 1.5rem;
+      text-align: center;
+      border-bottom: 2px solid #ffd966;
+    }
+
+    .header h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      background: linear-gradient(120deg, #FFF8E7, #FFE6A3);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .header h1 i {
+      background: none;
+      -webkit-background-clip: unset;
+      background-clip: unset;
+      color: #FFC857;
+      margin-right: 8px;
+    }
+
+    /* Orders List */
+    .orders-list {
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding-bottom: 2rem;
+    }
+
+    /* Order Card */
+    .order-card {
+      background: rgba(10, 12, 28, 0.7);
+      backdrop-filter: blur(8px);
+      border-radius: 1.2rem;
+      padding: 1.2rem;
+      border: 1px solid rgba(255, 215, 0, 0.2);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .order-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 215, 0, 0.4);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .order-id {
+      font-size: 0.7rem;
+      color: #9ba3e0;
+      font-family: monospace;
+      background: rgba(255, 215, 0, 0.1);
+      padding: 0.2rem 0.6rem;
+      border-radius: 1rem;
+    }
+
+    .order-status {
+      display: inline-block;
+      padding: 0.25rem 0.8rem;
+      border-radius: 2rem;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+
+    .status-pending {
+      background: #f59e0b;
+      color: #12142e;
+    }
+
+    .status-completed {
+      background: #10b981;
+      color: white;
+    }
+
+    .status-cancelled {
+      background: #ef4444;
+      color: white;
+    }
+
+    .order-product {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #FFE6A3;
+      margin-bottom: 0.8rem;
+    }
+
+    .order-product i {
+      color: #FFC857;
+      margin-right: 0.5rem;
+    }
+
+    .order-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 0.8rem;
+      font-size: 0.8rem;
+      color: #9ba3e0;
+    }
+
+    .order-details span {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .order-details i {
+      color: #FFC857;
+      width: 18px;
+    }
+
+    .order-amount {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #FFC857;
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid rgba(255, 215, 0, 0.15);
+    }
+
+    .order-amount i {
+      margin-right: 0.3rem;
+    }
+
+    .order-date {
+      font-size: 0.65rem;
+      color: #6c72a5;
+      margin-top: 0.5rem;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1.5rem;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      color: #FFC857;
+      opacity: 0.5;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+      color: #9ba3e0;
+      font-size: 0.9rem;
+    }
+
+    .empty-state p:first-of-type {
+      font-size: 1.1rem;
+      color: #FFE6A3;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 12, 28, 0.95);
+      backdrop-filter: blur(12px);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0.6rem 1rem;
+      border-top: 1px solid rgba(255, 215, 0, 0.2);
+      max-width: 550px;
+      margin: 0 auto;
+      z-index: 100;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 1.2rem;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .nav-icon {
+      font-size: 1.4rem;
+    }
+
+    .nav-label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #a3abdf;
+      letter-spacing: 0.3px;
+    }
+
+    .nav-item.active .nav-label {
+      color: #FFD966;
+      font-weight: 600;
+    }
+
+    .nav-item.active .nav-icon {
+      color: #FFD966;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 215, 0, 0.08);
+      transform: translateY(-2px);
+    }
   </style>
 </head>
 <body>
 
 <div class="container">
   <div class="header">
-    <button class="back-btn" id="backBtn"><i class="fas fa-arrow-left"></i> Back</button>
-    <h1><i class="fas fa-shopping-bag"></i> My Orders</h1>
+    <h1><i class="fas fa-shopping-bag"></i> မိမိ Order များ</h1>
   </div>
-  <div class="orders-list" id="ordersList"></div>
+  <div class="orders-list" id="ordersList">
+    <div class="empty-state">
+      <i class="fas fa-spinner fa-pulse"></i>
+      <p>မှတ်တမ်းများ ရယူနေသည်...</p>
+    </div>
+  </div>
 </div>
 
+<!-- Bottom Navigation -->
 <div class="bottom-nav">
-  <div class="nav-item" data-page="home"><i class="fas fa-home"></i><span>Home</span></div>
-  <div class="nav-item" data-page="games"><i class="fas fa-gamepad"></i><span>Games</span></div>
-  <div class="nav-item" data-page="wallet"><i class="fas fa-wallet"></i><span>Wallet</span></div>
-  <div class="nav-item active" data-page="orders"><i class="fas fa-shopping-bag"></i><span>Orders</span></div>
-  <div class="nav-item" data-page="profile"><i class="fas fa-user"></i><span>Profile</span></div>
+  <button class="nav-item" data-page="home">
+    <div class="nav-icon">🏠</div>
+    <div class="nav-label">ပင်မစာမျက်နှာ</div>
+  </button>
+  <button class="nav-item" data-page="games">
+    <div class="nav-icon">🎮</div>
+    <div class="nav-label">ဂိမ်းစာမျက်နှာ</div>
+  </button>
+  <button class="nav-item" data-page="wallet">
+    <div class="nav-icon">👛</div>
+    <div class="nav-label">ပိုက်ဆံအိတ်</div>
+  </button>
+  <button class="nav-item active" data-page="orders">
+    <div class="nav-icon">📦</div>
+    <div class="nav-label">မှတ်တမ်းများ</div>
+  </button>
+  <button class="nav-item" data-page="profile">
+    <div class="nav-icon">👤</div>
+    <div class="nav-label">ပရိုဖိုင်</div>
+  </button>
 </div>
 
 <script>
-  // --- Firebase Configuration (သင်၏ Project Settings မှ တန်ဖိုးများ ထည့်ပါ) ---
+  // Firebase Configuration
   const firebaseConfig = {
-    apiKey: "AIzaSyB8iE6D3N7X7qZxR9kLmNpQrStUvWxYz123456",
-    authDomain: "dia-zone.firebaseapp.com",
-    databaseURL: "https://dia-zone-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "dia-zone",
-    storageBucket: "dia-zone.appspot.com",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:abc123def456ghi789"
-  };
+    apiKey: "AIzaSyCZridqu0bhTRM5mzbRdfJxWic4xcG7rg4",
+  authDomain: "dia-zone.firebaseapp.com",
+  databaseURL: "https://dia-zone-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "dia-zone",
+  storageBucket: "dia-zone.firebasestorage.app",
+  messagingSenderId: "954378673786",
+  appId: "1:954378673786:web:fe6ab648f60eb5207665c3"
+};
 
-  // Initialize Firebase
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
   }
   const db = firebase.database();
 
-  // --- Theme ---
-  if (localStorage.getItem('diaZoneTheme') === 'dark') document.body.classList.add('dark');
-
-  // --- User Data ---
   let currentUser = JSON.parse(localStorage.getItem('diaZoneUser') || sessionStorage.getItem('diaZoneUser') || 'null');
   
   if (!currentUser) {
     window.location.href = 'login.html';
   }
 
-  // Get user unique ID (Firebase key)
   const userId = currentUser.id || currentUser.userId;
 
   function getStatusClass(status) {
@@ -100,16 +335,16 @@
   }
 
   function getStatusText(status) {
-    if (status === 'Completed' || status === 'Approved') return '✅ Approved';
-    if (status === 'Cancelled' || status === 'Rejected') return '❌ Rejected';
-    return '⏳ Pending';
+    if (status === 'Completed' || status === 'Approved') return '✓ အတည်ပြုပြီး';
+    if (status === 'Cancelled' || status === 'Rejected') return '✗ မအောင်မြင်ပါ';
+    return '⏳ စောင့်ဆိုင်းနေသည်';
   }
 
   function formatDate(dateString) {
     if (!dateString) return 'N/A';
     try {
       const date = new Date(dateString);
-      return date.toLocaleString();
+      return date.toLocaleString('my-MM', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     } catch(e) {
       return dateString;
     }
@@ -118,22 +353,22 @@
   function renderOrders(ordersData) {
     const container = document.getElementById('ordersList');
     
-    if (!ordersData) {
-      container.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-bag"></i><p>No orders yet</p><p style="font-size:0.8rem; margin-top:0.5rem;">Your purchase history will appear here</p></div>';
+    if (!ordersData || (Array.isArray(ordersData) && ordersData.length === 0)) {
+      container.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-bag"></i><p>မှတ်တမ်းမရှိသေးပါ</p><p>သင်၏ဝယ်ယူမှုမှတ်တမ်းများ ဤနေရာတွင်ပေါ်ပါမည်</p></div>';
       return;
     }
 
-    // Convert object to array and reverse to see latest first
     let orders = [];
     if (Array.isArray(ordersData)) {
       orders = [...ordersData];
     } else {
       orders = Object.values(ordersData);
     }
+    
     orders.reverse();
     
     if (orders.length === 0) {
-      container.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-bag"></i><p>No orders yet</p><p style="font-size:0.8rem; margin-top:0.5rem;">Your purchase history will appear here</p></div>';
+      container.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-bag"></i><p>မှတ်တမ်းမရှိသေးပါ</p><p>သင်၏ဝယ်ယူမှုမှတ်တမ်းများ ဤနေရာတွင်ပေါ်ပါမည်</p></div>';
       return;
     }
     
@@ -142,29 +377,29 @@
       const card = document.createElement('div');
       card.className = 'order-card';
       
-      // Get order date display
       const orderDate = order.orderDateDisplay || order.date || formatDate(order.orderDate);
+      const gameName = order.game || 'Mobile Legend';
+      const productName = order.product || 'Diamonds';
       
       card.innerHTML = `
         <div class="order-header">
-          <span class="order-id"><i class="fas fa-hashtag"></i> ${order.id || 'N/A'}</span>
+          <span class="order-id"><i class="fas fa-hashtag"></i> ${order.id || 'ORD-' + Math.floor(Math.random()*10000)}</span>
           <span class="order-status ${getStatusClass(order.status)}">${getStatusText(order.status)}</span>
         </div>
-        <div class="order-product"><i class="fas fa-gamepad"></i> ${order.game || 'Mobile Legend'} - ${order.product || 'Diamonds'}</div>
+        <div class="order-product"><i class="fas fa-gamepad"></i> ${gameName} - ${productName}</div>
         <div class="order-details">
           <span><i class="fas fa-id-card"></i> Game ID: ${order.gameId || 'N/A'}</span>
-          <span><i class="fas fa-server"></i> Server ID: ${order.serverId || 'N/A'}</span>
+          <span><i class="fas fa-server"></i> Server: ${order.serverId || 'N/A'}</span>
         </div>
-        <div class="order-amount"><i class="fas fa-coins"></i> ${(order.amount || 0).toLocaleString()} Ks</div>
+        <div class="order-amount"><i class="fas fa-coins"></i> ${(order.amount || 0).toLocaleString()} ကျပ်</div>
         <div class="order-date"><i class="far fa-calendar-alt"></i> ${orderDate}</div>
       `;
       container.appendChild(card);
     });
   }
 
-  // --- Real-time Order Fetching ---
+  // Real-time Order Fetching
   if (userId) {
-    // Query orders by userId
     db.ref('orders').orderByChild('userId').equalTo(userId).on('value', (snapshot) => {
       if (snapshot.exists()) {
         renderOrders(snapshot.val());
@@ -173,7 +408,6 @@
       }
     });
   } else {
-    // Fallback: get all orders and filter by userPhone or userEmail
     db.ref('orders').on('value', (snapshot) => {
       if (snapshot.exists()) {
         const allOrders = snapshot.val();
@@ -196,7 +430,6 @@
   }
 
   // Navigation
-  document.getElementById('backBtn').onclick = () => window.location.href = 'dashboard.html';
   document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
       const page = item.dataset.page;
