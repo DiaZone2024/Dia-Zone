@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="my">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
@@ -7,130 +7,482 @@
 
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
   <script src="https://telegram.org/js/telegram-web-app.js?62"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    :root { --bg-body: #f1f5f9; --bg-container: white; --text-primary: #0f172a; --text-secondary: #475569; --border-color: #e2e8f0; --card-bg: #f8fafc; --header-bg: linear-gradient(135deg, #0f172a, #1e293b); --wallet-bg: linear-gradient(145deg, #3b82f6, #1d4ed8); --logout-bg: #fee2e2; --logout-text: #b91c1c; --modal-bg: white; --input-border: #e2e8f0; }
-    body.dark { --bg-body: #0f172a; --bg-container: #1e293b; --text-primary: #f1f5f9; --text-secondary: #94a3b8; --border-color: #334155; --card-bg: #0f172a; --header-bg: linear-gradient(135deg, #020617, #0f172a); --wallet-bg: linear-gradient(145deg, #2563eb, #1d4ed8); --logout-bg: #7f1d1d; --logout-text: #fecaca; --modal-bg: #1e293b; --input-border: #475569; }
-    * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.3s ease, color 0.2s ease; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg-body); padding-bottom: 80px; }
-    .container { max-width: 500px; margin: 0 auto; background: var(--bg-container); min-height: 100vh; }
-    .header { background: var(--header-bg); padding: 2rem 1.5rem; text-align: center; position: relative; }
-    .back-btn { position: absolute; left: 1.5rem; top: 1.5rem; background: rgba(255,255,255,0.15); border: none; color: white; padding: 0.4rem 1rem; border-radius: 2rem; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; }
-    .avatar { width: 80px; height: 80px; background: linear-gradient(145deg, #3b82f6, #1d4ed8); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
-    .avatar i { font-size: 3rem; color: white; }
-    .header h2 { color: white; font-size: 1.3rem; font-weight: 700; }
-    .header p { color: rgba(255,255,255,0.7); font-size: 0.8rem; }
-    .info-section { padding: 1.5rem; }
-    .wallet-card { background: var(--wallet-bg); border-radius: 1.2rem; padding: 1.2rem; margin-bottom: 1rem; text-align: center; }
-    .wallet-card h4 { color: rgba(255,255,255,0.8); font-size: 0.75rem; }
-    .wallet-card .balance { font-size: 1.8rem; font-weight: 700; color: white; }
-    .info-card { background: var(--card-bg); border-radius: 1.2rem; padding: 1.2rem; margin-bottom: 1rem; border: 1px solid var(--border-color); }
-    .info-item { display: flex; align-items: center; gap: 15px; padding: 0.8rem 0; border-bottom: 1px solid var(--border-color); }
-    .info-item:last-child { border-bottom: none; }
-    .info-item i { width: 30px; color: #3b82f6; font-size: 1.1rem; }
-    .info-item .label { flex: 1; font-weight: 500; color: var(--text-secondary); font-size: 0.85rem; }
-    .info-item .value { color: var(--text-primary); font-weight: 600; font-size: 0.9rem; }
-    .edit-btn { background: #0f172a; color: white; border: none; padding: 0.8rem; border-radius: 2rem; width: 100%; font-weight: 600; cursor: pointer; margin-top: 0.5rem; }
-    .logout-small { background: var(--logout-bg); color: var(--logout-text); margin-top: 1rem; }
-    .choice-modal, .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-    .choice-modal.show, .modal.show { display: flex; }
-    .choice-content, .modal-content { background: var(--modal-bg); border-radius: 1.5rem; width: 90%; max-width: 350px; padding: 1.5rem; text-align: center; animation: slideUp 0.3s ease; }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-    .choice-content h3, .modal-content h3 { font-size: 1.3rem; margin-bottom: 1rem; color: var(--text-primary); }
-    .choice-buttons { display: flex; flex-direction: column; gap: 0.8rem; }
-    .choice-btn { padding: 0.8rem; border-radius: 2rem; border: none; font-weight: 600; cursor: pointer; }
-    .choice-name { background: #3b82f6; color: white; }
-    .choice-password { background: #0f172a; color: white; }
-    .choice-cancel { background: #e2e8f0; color: #334155; }
-    body.dark .choice-cancel { background: #334155; color: white; }
-    .modal-content input { width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--input-border); border-radius: 1rem; font-size: 0.9rem; margin-bottom: 1rem; background: var(--bg-container); color: var(--text-primary); }
-    .modal-buttons { display: flex; gap: 0.8rem; margin-top: 0.5rem; }
-    .modal-buttons button { flex: 1; padding: 0.7rem; border-radius: 2rem; border: none; font-weight: 600; cursor: pointer; }
-    .save-btn { background: #0f172a; color: white; }
-    .cancel-btn { background: #e2e8f0; color: #334155; }
-    body.dark .cancel-btn { background: #334155; color: white; }
-    .error-msg { color: #dc2626; font-size: 0.75rem; margin-top: -0.5rem; margin-bottom: 0.8rem; display: none; }
-    .error-msg.show { display: block; }
-    .success-toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 0.6rem 1.2rem; border-radius: 2rem; font-size: 0.8rem; z-index: 1000; display: none; }
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-container); display: flex; justify-content: space-around; align-items: center; padding: 0.6rem 1rem; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); border-top: 1px solid var(--border-color); max-width: 500px; margin: 0 auto; z-index: 100; }
-    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 0.3rem 0.8rem; }
-    .nav-item i { font-size: 1.3rem; color: #94a3b8; }
-    .nav-item span { font-size: 0.65rem; color: #94a3b8; font-weight: 500; }
-    .nav-item.active i, .nav-item.active span { color: #3b82f6; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #0b0c1a 0%, #11132a 100%);
+      font-family: 'Inter', 'Poppins', 'Myanmar Text', sans-serif;
+      min-height: 100vh;
+      padding-bottom: 85px;
+      background-image: url('image/layla.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    .container {
+      max-width: 550px;
+      margin: 0 auto;
+      background: rgba(18, 22, 48, 0.75);
+      backdrop-filter: blur(12px);
+      min-height: 100vh;
+      border-radius: 2rem;
+      box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, rgba(30, 35, 72, 0.9), rgba(12, 15, 36, 0.9));
+      padding: 2rem 1.5rem 1.8rem;
+      text-align: center;
+      border-bottom: 2px solid #ffd966;
+    }
+
+    .avatar {
+      width: 85px;
+      height: 85px;
+      background: linear-gradient(145deg, #FFC857, #FFAE2B);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    .avatar i {
+      font-size: 3.2rem;
+      color: #12142e;
+    }
+
+    .header h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(120deg, #FFF8E7, #FFE6A3);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .header p {
+      color: rgba(255, 215, 150, 0.8);
+      font-size: 0.8rem;
+      margin-top: 0.3rem;
+    }
+
+    /* Info Section */
+    .info-section {
+      padding: 1.5rem;
+      padding-bottom: 2rem;
+    }
+
+    /* Wallet Card with background image */
+    .wallet-card {
+      background: linear-gradient(145deg, #FFC857, #FFAE2B);
+      border-radius: 1.5rem;
+      padding: 1.3rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      position: relative;
+      overflow: hidden;
+      background-image: url('image/wallet.jpg');
+      background-size: cover;
+      background-position: center;
+    }
+
+    .wallet-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.35);
+      z-index: 0;
+    }
+
+    .wallet-card h4,
+    .wallet-card .balance {
+      position: relative;
+      z-index: 1;
+    }
+
+    .wallet-card h4 {
+      color: rgba(255, 255, 255, 0.95);
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.3rem;
+    }
+
+    .wallet-card .balance {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #ffffff;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    /* Info Card */
+    .info-card {
+      background: rgba(10, 12, 28, 0.7);
+      backdrop-filter: blur(8px);
+      border-radius: 1.5rem;
+      padding: 1.2rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(255, 215, 0, 0.2);
+    }
+
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 0.9rem 0;
+      border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+    }
+
+    .info-item:last-child {
+      border-bottom: none;
+    }
+
+    .info-item i {
+      width: 32px;
+      color: #FFC857;
+      font-size: 1.1rem;
+    }
+
+    .info-item .label {
+      flex: 1;
+      font-weight: 500;
+      color: #9ba3e0;
+      font-size: 0.85rem;
+    }
+
+    .info-item .value {
+      color: #f1f5f9;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    /* Buttons */
+    .edit-btn {
+      background: linear-gradient(95deg, #FFC857, #FFAE2B);
+      border: none;
+      padding: 0.85rem;
+      border-radius: 2rem;
+      width: 100%;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      color: #12142e;
+      transition: all 0.2s;
+      box-shadow: 0 5px 12px rgba(0,0,0,0.2);
+    }
+
+    .edit-btn:hover {
+      transform: scale(1.01);
+      background: linear-gradient(95deg, #FFD46E, #FFB83B);
+    }
+
+    .logout-small {
+      background: rgba(255, 70, 70, 0.15);
+      color: #ffaeae;
+      border: 1px solid rgba(255, 110, 110, 0.4);
+      margin-top: 1rem;
+    }
+
+    .logout-small:hover {
+      background: rgba(255, 80, 80, 0.3);
+      color: #fff0f0;
+    }
+
+    /* Modals */
+    .choice-modal, .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .choice-modal.show, .modal.show {
+      display: flex;
+    }
+
+    .choice-content, .modal-content {
+      background: #1a1e3a;
+      border-radius: 1.8rem;
+      width: 90%;
+      max-width: 350px;
+      padding: 1.8rem;
+      text-align: center;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .choice-content h3, .modal-content h3 {
+      font-size: 1.4rem;
+      margin-bottom: 1.2rem;
+      color: #FFE6A3;
+    }
+
+    .choice-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .choice-btn {
+      padding: 0.8rem;
+      border-radius: 2rem;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .choice-name {
+      background: #FFC857;
+      color: #12142e;
+    }
+
+    .choice-password {
+      background: #1e2348;
+      color: #FFE6A3;
+      border: 1px solid #FFC857;
+    }
+
+    .choice-cancel {
+      background: rgba(255,255,255,0.1);
+      color: #b9c3ff;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      border-radius: 1rem;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      background: #0f122e;
+      color: white;
+    }
+
+    .modal-content input:focus {
+      outline: none;
+      border-color: #FFC857;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .modal-buttons button {
+      flex: 1;
+      padding: 0.7rem;
+      border-radius: 2rem;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .save-btn {
+      background: #FFC857;
+      color: #12142e;
+    }
+
+    .cancel-btn {
+      background: rgba(255,255,255,0.1);
+      color: #b9c3ff;
+    }
+
+    .error-msg {
+      color: #ff6b6b;
+      font-size: 0.7rem;
+      margin-top: -0.5rem;
+      margin-bottom: 0.8rem;
+      display: none;
+    }
+
+    .error-msg.show {
+      display: block;
+    }
+
+    .success-toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #10b981;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border-radius: 2rem;
+      font-size: 0.8rem;
+      z-index: 1000;
+      display: none;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 12, 28, 0.95);
+      backdrop-filter: blur(12px);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0.6rem 1rem;
+      border-top: 1px solid rgba(255, 215, 0, 0.2);
+      max-width: 550px;
+      margin: 0 auto;
+      z-index: 100;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 1.2rem;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .nav-icon {
+      font-size: 1.4rem;
+    }
+
+    .nav-label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #a3abdf;
+      letter-spacing: 0.3px;
+    }
+
+    .nav-item.active .nav-label {
+      color: #FFD966;
+      font-weight: 600;
+    }
+
+    .nav-item.active .nav-icon {
+      color: #FFD966;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 215, 0, 0.08);
+      transform: translateY(-2px);
+    }
   </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
-    <button class="back-btn" id="backBtn"><i class="fas fa-arrow-left"></i> Back</button>
     <div class="avatar"><i class="fas fa-user-circle"></i></div>
-    <h2 id="userName">Loading...</h2>
+    <h2 id="userName">ဆောင်ရွက်နေသည်....</h2>
     <p id="userEmail">...</p>
   </div>
   <div class="info-section">
     <div class="wallet-card">
-      <h4><i class="fas fa-wallet"></i> My Balance</h4>
-      <div class="balance" id="userBalance">0 Ks</div>
+      <h4><i class="fas fa-wallet"></i> လက်ကျန်ငွေ</h4>
+      <div class="balance" id="userBalance">0 ကျပ်</div>
     </div>
     <div class="info-card">
-      <div class="info-item"><i class="fas fa-user"></i><span class="label">Full Name</span><span class="value" id="profileName">-</span></div>
-      <div class="info-item"><i class="fas fa-phone"></i><span class="label">Phone Number</span><span class="value" id="profilePhone">-</span></div>
+      <div class="info-item"><i class="fas fa-user"></i><span class="label">နာမည်</span><span class="value" id="profileName">-</span></div>
+      <div class="info-item"><i class="fas fa-phone"></i><span class="label">ဖုန်းနံပါတ်</span><span class="value" id="profilePhone">-</span></div>
       <div class="info-item"><i class="fas fa-envelope"></i><span class="label">Email</span><span class="value" id="profileEmail">-</span></div>
-      <div class="info-item"><i class="fas fa-calendar-alt"></i><span class="label">Member Since</span><span class="value" id="memberSince">-</span></div>
+      <div class="info-item"><i class="fas fa-calendar-alt"></i><span class="label">Member ရက်စွဲ</span><span class="value" id="memberSince">-</span></div>
       <div class="info-item"><i class="fas fa-shield-alt"></i><span class="label">Account Status</span><span class="value" id="accountStatus">-</span></div>
     </div>
-    <button class="edit-btn" id="editProfileBtn"><i class="fas fa-edit"></i> Edit Profile</button>
-    <button class="edit-btn logout-small" id="profileLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    <button class="edit-btn" id="editProfileBtn"><i class="fas fa-edit"></i> ပရိုဖိုင်ပြင်ရန်</button>
+    <button class="edit-btn logout-small" id="profileLogoutBtn"><i class="fas fa-sign-out-alt"></i> ထွက်မည်</button>
   </div>
 </div>
 
-<div id="choiceModal" class="choice-modal"><div class="choice-content"><h3>Edit Profile</h3><div class="choice-buttons"><button class="choice-btn choice-name" id="changeNameBtn"><i class="fas fa-user-edit"></i> Change Name</button><button class="choice-btn choice-password" id="changePasswordBtn"><i class="fas fa-key"></i> Change Password</button><button class="choice-btn choice-cancel" id="cancelChoiceBtn">Cancel</button></div></div></div>
-<div id="editNameModal" class="modal"><div class="modal-content"><h3>Change Name</h3><input type="text" id="newNameInput" placeholder="Enter new name"><div id="nameError" class="error-msg"></div><div class="modal-buttons"><button class="cancel-btn" id="cancelNameBtn">Cancel</button><button class="save-btn" id="saveNameBtn">Save</button></div></div></div>
-<div id="changePasswordModal" class="modal"><div class="modal-content"><h3>Change Password</h3><input type="password" id="currentPassword" placeholder="Current Password"><div id="currentPwdError" class="error-msg"></div><input type="password" id="newPassword" placeholder="New Password (min 4)"><input type="password" id="confirmNewPassword" placeholder="Confirm New Password"><div id="newPwdError" class="error-msg"></div><div class="modal-buttons"><button class="cancel-btn" id="cancelPasswordBtn">Cancel</button><button class="save-btn" id="savePasswordBtn">Update</button></div></div></div>
-<div id="successToast" class="success-toast">✓ Updated!</div>
+<!-- Modals -->
+<div id="choiceModal" class="choice-modal"><div class="choice-content"><h3>ပရိုဖိုင်ပြင်ရန်</h3><div class="choice-buttons"><button class="choice-btn choice-name" id="changeNameBtn"><i class="fas fa-user-edit"></i> နာမည်ပြောင်းမည်</button><button class="choice-btn choice-password" id="changePasswordBtn"><i class="fas fa-key"></i> စကားဝှက်ပြောင်းမည်</button><button class="choice-btn choice-cancel" id="cancelChoiceBtn">မလုပ်တော့ပါ</button></div></div></div>
+<div id="editNameModal" class="modal"><div class="modal-content"><h3>နာမည်ပြောင်းမည်</h3><input type="text" id="newNameInput" placeholder="နာမည်အသစ်ရိုက်ထည့်ပါ"><div id="nameError" class="error-msg"></div><div class="modal-buttons"><button class="cancel-btn" id="cancelNameBtn">မလုပ်တော့ပါ</button><button class="save-btn" id="saveNameBtn">သိမ်းမည်</button></div></div></div>
+<div id="changePasswordModal" class="modal"><div class="modal-content"><h3>စကားဝှက်ပြောင်းမည်</h3><input type="password" id="currentPassword" placeholder="လက်ရှိစကားဝှက်ရိုက်ထည့်ပါ"><div id="currentPwdError" class="error-msg"></div><input type="password" id="newPassword" placeholder="စကားဝှက်အသစ်"><input type="password" id="confirmNewPassword" placeholder="စကားဝှက်အတည်ပြု"><div id="newPwdError" class="error-msg"></div><div class="modal-buttons"><button class="cancel-btn" id="cancelPasswordBtn">မလုပ်တော့ပါ</button><button class="save-btn" id="savePasswordBtn">ပြောင်းမည်</button></div></div></div>
+<div id="successToast" class="success-toast">✓ အောင်မြင်ပါပြီ</div>
 
+<!-- Bottom Navigation -->
 <div class="bottom-nav">
-  <div class="nav-item" data-page="home"><i class="fas fa-home"></i><span>Home</span></div>
-  <div class="nav-item" data-page="games"><i class="fas fa-gamepad"></i><span>Games</span></div>
-  <div class="nav-item" data-page="wallet"><i class="fas fa-wallet"></i><span>Wallet</span></div>
-  <div class="nav-item" data-page="orders"><i class="fas fa-shopping-bag"></i><span>Orders</span></div>
-  <div class="nav-item active" data-page="profile"><i class="fas fa-user"></i><span>Profile</span></div>
+  <button class="nav-item" data-page="home">
+    <div class="nav-icon">🏠</div>
+    <div class="nav-label">ပင်မစာမျက်နှာ</div>
+  </button>
+  <button class="nav-item" data-page="games">
+    <div class="nav-icon">🎮</div>
+    <div class="nav-label">ဂိမ်းစာမျက်နှာ</div>
+  </button>
+  <button class="nav-item" data-page="wallet">
+    <div class="nav-icon">👛</div>
+    <div class="nav-label">ပိုက်ဆံအိတ်</div>
+  </button>
+  <button class="nav-item" data-page="orders">
+    <div class="nav-icon">📦</div>
+    <div class="nav-label">မှတ်တမ်းများ</div>
+  </button>
+  <button class="nav-item active" data-page="profile">
+    <div class="nav-icon">👤</div>
+    <div class="nav-label">ပရိုဖိုင်</div>
+  </button>
 </div>
 
 <script>
-  // --- Firebase Configuration (သင်၏ Project Settings မှ တန်ဖိုးများ ထည့်ပါ) ---
+  // Firebase Configuration
   const firebaseConfig = {
-    apiKey: "AIzaSyB8iE6D3N7X7qZxR9kLmNpQrStUvWxYz123456",
-    authDomain: "dia-zone.firebaseapp.com",
-    databaseURL: "https://dia-zone-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "dia-zone",
-    storageBucket: "dia-zone.appspot.com",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:abc123def456ghi789"
-  };
+    apiKey: "AIzaSyCZridqu0bhTRM5mzbRdfJxWic4xcG7rg4",
+  authDomain: "dia-zone.firebaseapp.com",
+  databaseURL: "https://dia-zone-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "dia-zone",
+  storageBucket: "dia-zone.firebasestorage.app",
+  messagingSenderId: "954378673786",
+  appId: "1:954378673786:web:fe6ab648f60eb5207665c3"
+};
 
-  // Initialize Firebase
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
   }
   const db = firebase.database();
 
-  // --- Theme ---
-  if (localStorage.getItem('diaZoneTheme') === 'dark') document.body.classList.add('dark');
-
-  // --- User Data Handling ---
   let currentUser = JSON.parse(localStorage.getItem('diaZoneUser') || sessionStorage.getItem('diaZoneUser') || 'null');
 
   if (!currentUser) {
     window.location.href = 'login.html';
   }
 
-  // Get user ID (Firebase key)
   const userId = currentUser.id || currentUser.userId;
-  
+
   function displayUserProfile(data) {
     document.getElementById('userName').textContent = data.name || 'User';
     document.getElementById('userEmail').textContent = data.email || 'No Email';
@@ -139,10 +491,9 @@
     document.getElementById('profileEmail').textContent = data.email || '-';
     document.getElementById('memberSince').textContent = data.memberSince || '2024';
     document.getElementById('accountStatus').textContent = data.status || 'Verified';
-    document.getElementById('userBalance').textContent = (data.balance || 0).toLocaleString() + ' Ks';
+    document.getElementById('userBalance').textContent = (data.balance || 0).toLocaleString() + ' ကျပ်';
   }
 
-  // Real-time Fetch from Firebase
   if (userId) {
     const userRef = db.ref('users/' + userId);
     userRef.on('value', (snapshot) => {
@@ -152,6 +503,8 @@
         localStorage.setItem('diaZoneUser', JSON.stringify(currentUser));
         sessionStorage.setItem('diaZoneUser', JSON.stringify(currentUser));
         displayUserProfile(data);
+      } else {
+        displayUserProfile(currentUser);
       }
     });
   } else {
@@ -166,7 +519,7 @@
     setTimeout(() => { toast.style.display = 'none'; }, 2000);
   }
 
-  // Modals Logic
+  // Modals
   const choiceModal = document.getElementById('choiceModal');
   const editNameModal = document.getElementById('editNameModal');
   const changePasswordModal = document.getElementById('changePasswordModal');
@@ -174,7 +527,6 @@
   document.getElementById('editProfileBtn').onclick = () => choiceModal.classList.add('show');
   document.getElementById('cancelChoiceBtn').onclick = () => choiceModal.classList.remove('show');
 
-  // Change Name
   document.getElementById('changeNameBtn').onclick = () => {
     choiceModal.classList.remove('show');
     document.getElementById('newNameInput').value = currentUser.name || '';
@@ -187,13 +539,13 @@
     const nameError = document.getElementById('nameError');
     
     if (!newName) {
-      nameError.textContent = 'Name cannot be empty';
+      nameError.textContent = 'နာမည်မပါဝင်ပါ';
       nameError.classList.add('show');
       return;
     }
     
     if (newName.length < 2) {
-      nameError.textContent = 'Name must be at least 2 characters';
+      nameError.textContent = 'နာမည်အနည်းဆုံး ၂ လုံးရှိရပါမယ်';
       nameError.classList.add('show');
       return;
     }
@@ -204,14 +556,14 @@
       }
       currentUser.name = newName;
       localStorage.setItem('diaZoneUser', JSON.stringify(currentUser));
+      sessionStorage.setItem('diaZoneUser', JSON.stringify(currentUser));
       editNameModal.classList.remove('show');
-      showToast('Name updated successfully!');
+      showToast('နာမည်ပြောင်းလဲမှု အောင်မြင်ပါသည်');
     } catch (error) {
-      showToast('Update failed. Try again.', true);
+      showToast('ပြောင်းလဲမှု မအောင်မြင်ပါ။ ထပ်မံကြိုးစားပါ', true);
     }
   };
 
-  // Change Password
   document.getElementById('changePasswordBtn').onclick = () => {
     choiceModal.classList.remove('show');
     document.getElementById('currentPassword').value = '';
@@ -233,25 +585,25 @@
     newPwdError.classList.remove('show');
     
     if (currentPwd !== currentUser.password) {
-      currentPwdError.textContent = 'Current password is incorrect!';
+      currentPwdError.textContent = 'လက်ရှိစကားဝှက် မှားယွင်းနေပါသည်';
       currentPwdError.classList.add('show');
       return;
     }
     
     if (newPwd.length < 4) {
-      newPwdError.textContent = 'New password must be at least 4 characters';
+      newPwdError.textContent = 'စကားဝှက်အသစ် အနည်းဆုံး ၄ လုံးရှိရပါမယ်';
       newPwdError.classList.add('show');
       return;
     }
     
     if (newPwd !== confirmPwd) {
-      newPwdError.textContent = 'Passwords do not match';
+      newPwdError.textContent = 'စကားဝှက်များ မတူညီပါ';
       newPwdError.classList.add('show');
       return;
     }
     
     if (newPwd === currentUser.password) {
-      newPwdError.textContent = 'New password must be different';
+      newPwdError.textContent = 'စကားဝှက်အဟောင်းနှင့် မတူညီသော စကားဝှက်အသစ်ထည့်ပါ';
       newPwdError.classList.add('show');
       return;
     }
@@ -262,14 +614,14 @@
       }
       currentUser.password = newPwd;
       localStorage.setItem('diaZoneUser', JSON.stringify(currentUser));
+      sessionStorage.setItem('diaZoneUser', JSON.stringify(currentUser));
       changePasswordModal.classList.remove('show');
-      showToast('Password changed successfully!');
+      showToast('စကားဝှက်ပြောင်းလဲမှု အောင်မြင်ပါသည်');
     } catch (error) {
-      showToast('Update failed. Try again.', true);
+      showToast('ပြောင်းလဲမှု မအောင်မြင်ပါ။ ထပ်မံကြိုးစားပါ', true);
     }
   };
 
-  // Cancel buttons
   document.getElementById('cancelNameBtn').onclick = () => editNameModal.classList.remove('show');
   document.getElementById('cancelPasswordBtn').onclick = () => changePasswordModal.classList.remove('show');
 
@@ -281,24 +633,23 @@
   };
 
   // Navigation
-  document.getElementById('backBtn').onclick = () => window.location.href = 'dashboard.html';
   document.querySelectorAll('.nav-item').forEach(item => {
-    item.onclick = () => {
+    item.addEventListener('click', () => {
       const page = item.dataset.page;
       if (page === 'home') window.location.href = 'dashboard.html';
       else if (page === 'games') window.location.href = 'games.html';
       else if (page === 'wallet') window.location.href = 'wallet.html';
       else if (page === 'orders') window.location.href = 'orders.html';
       else if (page === 'profile') window.location.href = 'profile.html';
-    };
+    });
   });
 
-  // Close modals when clicking outside
+    // Close modals when clicking outside
   window.onclick = (e) => {
-    if (e.target === choiceModal) choiceModal.classList.remove('show');
-    if (e.target === editNameModal) editNameModal.classList.remove('show');
-    if (e.target === changePasswordModal) changePasswordModal.classList.remove('show');
-  };
-</script>
-</body>
-</html>
+  if (e.target === choiceModal) choiceModal.classList.remove('show');
+  if (e.target === editNameModal) editNameModal.classList.remove('show');
+  if (e.target === changePasswordModal) changePasswordModal.classList.remove('show');
+};
+</script> <
+/body> <
+/html>
