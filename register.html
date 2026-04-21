@@ -1,92 +1,250 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="my">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Register - Dia Zone (Email OTP)</title>
+  <title>Dia Zone - Register</title>
   
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
-  <!-- EmailJS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-
   <script src="https://telegram.org/js/telegram-web-app.js?62"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    :root {
-      --bg-body: linear-gradient(145deg, #eef2f9 0%, #e2e8f0 100%);
-      --bg-card: white;
-      --text-primary: #0f172a;
-      --text-secondary: #1e293b;
-      --border-color: #e2edf2;
-      --input-bg: #ffffff;
-      --input-border: #e2edf2;
-      --btn-bg: #0f172a;
-      --btn-hover: #1f2a44;
-      --error-bg: #fee2e2;
-      --error-text: #b91c1c;
-      --success-bg: #dcfce7;
-      --success-text: #166534;
-      --info-bg: #e0f2fe;
-      --info-text: #0369a1;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-    body.dark {
-      --bg-body: linear-gradient(145deg, #0f172a 0%, #1e1b2e 100%);
-      --bg-card: #1e293b;
-      --text-primary: #f1f5f9;
-      --text-secondary: #94a3b8;
-      --border-color: #334155;
-      --input-bg: #0f172a;
-      --input-border: #475569;
-      --btn-bg: #3b82f6;
-      --btn-hover: #2563eb;
-      --error-bg: #7f1d1d;
-      --error-text: #fecaca;
-      --success-bg: #065f46;
-      --success-text: #a7f3d0;
-      --info-bg: #082f49;
-      --info-text: #7dd3fc;
+
+    body {
+      background: linear-gradient(145deg, #0b0c1a 0%, #11132a 100%);
+      font-family: 'Inter', 'Poppins', 'Myanmar Text', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      background-image: url('image/layla.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.3s ease, color 0.2s ease, border-color 0.2s ease; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg-body); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem; }
-    .register-card { max-width: 560px; width: 100%; background: var(--bg-card); border-radius: 2rem; box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.2); padding: 2rem 2rem 2.2rem; }
-    h2 { font-size: 1.8rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.5rem; }
-    .input-row { margin-bottom: 1.2rem; }
-    label { display: block; font-weight: 600; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.4rem; }
-    label .required { color: #ef4444; }
-    input { width: 100%; padding: 0.85rem 1rem; border: 1.5px solid var(--input-border); border-radius: 1rem; font-size: 0.95rem; font-family: inherit; background: var(--input-bg); color: var(--text-primary); }
-    input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
-    .otp-group { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; }
-    .otp-group input { flex: 2; margin-bottom: 0; }
-    .otp-group button { padding: 0.85rem 1.2rem; border-radius: 1rem; border: none; font-weight: 600; cursor: pointer; background: #3b82f6; color: white; white-space: nowrap; }
-    .otp-group button:disabled { opacity: 0.6; cursor: not-allowed; }
-    .btn-register { width: 100%; background: var(--btn-bg); color: white; font-weight: 700; padding: 0.9rem; border: none; border-radius: 2rem; font-size: 1rem; cursor: pointer; margin-top: 1rem; font-family: inherit; transition: 0.2s; }
-    .btn-register:hover { background: var(--btn-hover); transform: scale(0.98); }
-    .btn-register:disabled { opacity: 0.7; cursor: not-allowed; }
-    .login-redirect { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-secondary); }
-    .login-redirect a { color: #2563eb; font-weight: 600; text-decoration: none; cursor: pointer; }
-    hr { margin: 1rem 0; border-color: var(--border-color); }
-    .form-error { background: var(--error-bg); border-radius: 0.8rem; padding: 0.6rem; margin-top: 0.8rem; font-size: 0.8rem; color: var(--error-text); display: none; }
-    .form-error.show { display: block; }
-    .success-text { background: var(--success-bg); color: var(--success-text); padding: 0.6rem; border-radius: 0.8rem; display: none; margin-top: 1rem; }
-    .success-text.show { display: block; }
-    .info-text { background: var(--info-bg); color: var(--info-text); padding: 0.6rem; border-radius: 0.8rem; margin-top: 1rem; font-size: 0.8rem; text-align: center; display: none; }
-    .info-text.show { display: block; }
-    small { display: block; text-align: center; margin-top: 1rem; color: var(--text-secondary); font-size: 0.7rem; }
-    .resend-btn { background: none; border: none; color: #3b82f6; cursor: pointer; font-size: 0.8rem; margin-top: 0.5rem; text-decoration: underline; display: none; }
+
+    .register-card {
+      max-width: 560px;
+      width: 100%;
+      background: rgba(18, 22, 48, 0.85);
+      backdrop-filter: blur(12px);
+      border-radius: 2rem;
+      border: 1px solid rgba(255, 215, 0, 0.25);
+      box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5);
+      padding: 2rem 2rem 2.2rem;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(120deg, #FFF8E7, #FFE6A3);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .input-row {
+      margin-bottom: 1.2rem;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #b9c3ff;
+      margin-bottom: 0.4rem;
+    }
+
+    label .required {
+      color: #ff6b6b;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border: 1.5px solid rgba(255, 215, 0, 0.3);
+      border-radius: 1rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: rgba(10, 12, 28, 0.7);
+      color: #f1f5f9;
+      transition: all 0.2s;
+    }
+
+    input:focus {
+      border-color: #FFC857;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(255, 200, 87, 0.2);
+    }
+
+    input::placeholder {
+      color: #6c72a5;
+    }
+
+    .otp-group {
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .otp-group input {
+      flex: 2;
+      margin-bottom: 0;
+    }
+
+    .otp-group button {
+      padding: 0.85rem 1.2rem;
+      border-radius: 1rem;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+      background: linear-gradient(95deg, #FFC857, #FFAE2B);
+      color: #12142e;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .otp-group button:hover {
+      transform: scale(0.98);
+      background: linear-gradient(95deg, #FFD46E, #FFB83B);
+    }
+
+    .otp-group button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-register {
+      width: 100%;
+      background: linear-gradient(95deg, #FFC857, #FFAE2B);
+      color: #12142e;
+      font-weight: 800;
+      padding: 0.9rem;
+      border: none;
+      border-radius: 2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 1rem;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .btn-register:hover {
+      transform: scale(0.98);
+      background: linear-gradient(95deg, #FFD46E, #FFB83B);
+    }
+
+    .btn-register:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .login-redirect {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      color: #9ba3e0;
+    }
+
+    .login-redirect a {
+      color: #FFC857;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .login-redirect a:hover {
+      text-decoration: underline;
+    }
+
+    hr {
+      margin: 1rem 0;
+      border-color: rgba(255, 215, 0, 0.1);
+    }
+
+    .form-error {
+      background: rgba(255, 70, 70, 0.15);
+      border: 1px solid rgba(255, 110, 110, 0.4);
+      border-radius: 0.8rem;
+      padding: 0.6rem;
+      margin-top: 0.8rem;
+      font-size: 0.8rem;
+      color: #ffaeae;
+      display: none;
+    }
+
+    .form-error.show {
+      display: block;
+    }
+
+    .success-text {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #6ee7b7;
+      padding: 0.6rem;
+      border-radius: 0.8rem;
+      display: none;
+      margin-top: 1rem;
+    }
+
+    .success-text.show {
+      display: block;
+    }
+
+    .info-text {
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      color: #93c5fd;
+      padding: 0.6rem;
+      border-radius: 0.8rem;
+      margin-top: 0.8rem;
+      font-size: 0.8rem;
+      text-align: center;
+      display: none;
+    }
+
+    .info-text.show {
+      display: block;
+    }
+
+    small {
+      display: block;
+      text-align: center;
+      margin-top: 1rem;
+      color: #6c72a5;
+      font-size: 0.7rem;
+    }
+
+    .resend-btn {
+      background: none;
+      border: none;
+      color: #FFC857;
+      cursor: pointer;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+      text-decoration: underline;
+      display: none;
+    }
   </style>
-  <script>
-    function loadTheme() { const savedTheme = localStorage.getItem('diaZoneTheme'); if (savedTheme === 'dark') { document.body.classList.add('dark'); } }
-    loadTheme();
-    if (window.Telegram && window.Telegram.WebApp) { const tg = window.Telegram.WebApp; tg.expand(); tg.ready(); }
-  </script>
 </head>
 <body>
 <div class="register-card">
-  <h2>Register Account</h2>
+  <h2><i class="fas fa-user-plus"></i> Register Account</h2>
   <form id="registerForm">
     <div class="input-row">
       <label>Name <span class="required">*</span></label>
@@ -128,35 +286,28 @@
 </div>
 
 <script>
-  // ============ FIREBASE CONFIGURATION (UPDATED) ============
+  // Firebase Configuration
   const firebaseConfig = {
     apiKey: "AIzaSyCZridqu0bhTRM5mzbRdfJxWic4xcG7rg4",
-    authDomain: "dia-zone.firebaseapp.com",
-    databaseURL: "https://dia-zone-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "dia-zone",
-    storageBucket: "dia-zone.firebasestorage.app",
-    messagingSenderId: "954378673786",
-    appId: "1:954378673786:web:fe6ab648f60eb5207665c3",
-    measurementId: "G-CFZG0R60XN"
-  };
+  authDomain: "dia-zone.firebaseapp.com",
+  databaseURL: "https://dia-zone-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "dia-zone",
+  storageBucket: "dia-zone.firebasestorage.app",
+  messagingSenderId: "954378673786",
+  appId: "1:954378673786:web:fe6ab648f60eb5207665c3"
+};
 
-  // Initialize Firebase
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
-    console.log("✅ Firebase initialized with correct API key");
   }
   const auth = firebase.auth();
   const db = firebase.database();
 
-  // ============ EMAILJS CONFIGURATION ============
+  // EmailJS Configuration
   if (typeof emailjs !== 'undefined') {
     emailjs.init("w6UmVAyBh9bh_1H4R");
-    console.log("✅ EmailJS initialized successfully");
-  } else {
-    console.error("❌ EmailJS not loaded! Please check your internet connection.");
   }
 
-  // ============ EMAIL OTP SYSTEM ============
   let currentEmail = '';
   let isOtpVerified = false;
 
@@ -196,10 +347,10 @@
           user_name: userName || 'User'
         }
       );
-      console.log('✅ Email sent:', result);
+      console.log('Email sent:', result);
       return true;
     } catch(error) {
-      console.error('❌ EmailJS error:', error);
+      console.error('EmailJS error:', error);
       return false;
     }
   }
@@ -233,21 +384,15 @@
     
     if (success) {
       otpStatus.textContent = '✓ OTP sent! Check your email (Valid 5 min)';
-      otpStatus.style.background = '#10b981';
-      otpStatus.style.color = 'white';
       resendOtpBtn.style.display = 'inline-block';
       otpCodeInput.disabled = false;
       otpCodeInput.focus();
     } else {
       otpStatus.textContent = '✗ Failed to send OTP. Try again.';
-      otpStatus.style.background = '#ef4444';
-      otpStatus.style.color = 'white';
     }
     
     setTimeout(() => {
       otpStatus.classList.remove('show');
-      otpStatus.style.background = '';
-      otpStatus.style.color = '';
     }, 5000);
     
     sendOtpBtn.disabled = false;
@@ -280,8 +425,6 @@
         isOtpVerified = true;
         registerBtn.disabled = false;
         otpStatus.textContent = '✓ Email verified!';
-        otpStatus.style.background = '#10b981';
-        otpStatus.style.color = 'white';
         otpStatus.classList.add('show');
         setTimeout(() => otpStatus.classList.remove('show'), 3000);
       } else {
@@ -296,7 +439,6 @@
     }
   });
 
-  // ============ REGISTRATION ============
   const registerForm = document.getElementById('registerForm');
   const formErrorDiv = document.getElementById('registerFormError');
   const successDiv = document.getElementById('registerSuccessMsg');
