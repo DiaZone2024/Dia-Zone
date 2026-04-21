@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Dia Zone - My Orders</title>
+  <title>Dia Zone - Games</title>
   
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
   <script src="https://telegram.org/js/telegram-web-app.js?62"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     * {
@@ -21,36 +21,24 @@
       background: linear-gradient(145deg, #0b0c1a 0%, #11132a 100%);
       font-family: 'Inter', 'Poppins', 'Myanmar Text', sans-serif;
       min-height: 100vh;
+      padding: 1rem;
       padding-bottom: 85px;
-      background-image: url('image/layla.jpg');
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
     }
 
-    .container {
+    .games-container {
       max-width: 550px;
       margin: 0 auto;
-      background: rgba(18, 22, 48, 0.75);
-      backdrop-filter: blur(12px);
-      min-height: 100vh;
-      border-radius: 2rem;
-      box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5);
-      overflow: hidden;
-      margin-top: 1rem;
-      margin-bottom: 1rem;
     }
 
     /* Header */
     .header {
-      background: linear-gradient(135deg, rgba(30, 35, 72, 0.9), rgba(12, 15, 36, 0.9));
-      padding: 1.5rem 1.5rem;
       text-align: center;
-      border-bottom: 2px solid #ffd966;
+      margin-bottom: 1.8rem;
+      padding-top: 0.5rem;
     }
 
     .header h1 {
-      font-size: 1.6rem;
+      font-size: 1.8rem;
       font-weight: 800;
       background: linear-gradient(120deg, #FFF8E7, #FFE6A3);
       -webkit-background-clip: text;
@@ -63,148 +51,96 @@
       -webkit-background-clip: unset;
       background-clip: unset;
       color: #FFC857;
-      margin-right: 8px;
+      margin-right: 10px;
     }
 
-    /* Orders List */
-    .orders-list {
-      padding: 1.2rem;
-      display: flex;
-      flex-direction: column;
+    /* Game Grid */
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: 1rem;
-      padding-bottom: 2rem;
     }
 
-    /* Order Card */
-    .order-card {
-      background: rgba(10, 12, 28, 0.7);
-      backdrop-filter: blur(8px);
+    .game-card {
+      position: relative;
       border-radius: 1.2rem;
-      padding: 1.2rem;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      aspect-ratio: 1 / 0.9;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
       border: 1px solid rgba(255, 215, 0, 0.2);
-      transition: transform 0.2s, box-shadow 0.2s;
     }
 
-    .order-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(255, 215, 0, 0.4);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    .game-card:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 20px 35px -8px rgba(0, 0, 0, 0.4);
+      border-color: rgba(255, 215, 0, 0.5);
     }
 
-    .order-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.8rem;
-      flex-wrap: wrap;
-      gap: 0.5rem;
+    /* Game Background Images */
+    .game-card.ml-bg {
+      background: linear-gradient(0deg, rgba(0,0,0,0.75), rgba(0,0,0,0.4)), 
+                  url('image/mlbb.jpg');
+      background-size: cover;
+      background-position: center;
     }
 
-    .order-id {
-      font-size: 0.7rem;
-      color: #9ba3e0;
-      font-family: monospace;
-      background: rgba(255, 215, 0, 0.1);
-      padding: 0.2rem 0.6rem;
-      border-radius: 1rem;
+    .game-card.pubg-bg {
+      background: linear-gradient(0deg, rgba(0,0,0,0.75), rgba(0,0,0,0.4)), 
+                  url('image/pubg.jpg');
+      background-size: cover;
+      background-position: center;
     }
 
-    .order-status {
-      display: inline-block;
-      padding: 0.25rem 0.8rem;
-      border-radius: 2rem;
-      font-size: 0.65rem;
-      font-weight: 700;
+    .game-card.genshin-bg {
+      background: linear-gradient(0deg, rgba(0,0,0,0.75), rgba(0,0,0,0.4)), 
+                  url('image/Genshin.jpg');
+      background-size: cover;
+      background-position: center;
     }
 
-    .status-pending {
-      background: #f59e0b;
-      color: #12142e;
+    .game-card.ff-bg {
+      background: linear-gradient(0deg, rgba(0,0,0,0.75), rgba(0,0,0,0.4)), 
+                  url('image/FreeFire.jpg');
+      background-size: cover;
+      background-position: center;
     }
 
-    .status-completed {
-      background: #10b981;
-      color: white;
+    .game-card-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 1rem;
+      background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+      text-align: center;
     }
 
-    .status-cancelled {
-      background: #ef4444;
-      color: white;
-    }
-
-    .order-product {
+    .game-name {
       font-size: 1rem;
       font-weight: 700;
       color: #FFE6A3;
-      margin-bottom: 0.8rem;
-    }
-
-    .order-product i {
-      color: #FFC857;
-      margin-right: 0.5rem;
-    }
-
-    .order-details {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 0.8rem;
-      font-size: 0.8rem;
-      color: #9ba3e0;
-    }
-
-    .order-details span {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
-
-    .order-details i {
-      color: #FFC857;
-      width: 18px;
-    }
-
-    .order-amount {
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: #FFC857;
-      margin-top: 0.5rem;
-      padding-top: 0.5rem;
-      border-top: 1px solid rgba(255, 215, 0, 0.15);
-    }
-
-    .order-amount i {
-      margin-right: 0.3rem;
-    }
-
-    .order-date {
-      font-size: 0.65rem;
-      color: #6c72a5;
-      margin-top: 0.5rem;
-    }
-
-    /* Empty State */
-    .empty-state {
-      text-align: center;
-      padding: 3rem 1.5rem;
-    }
-
-    .empty-state i {
-      font-size: 4rem;
-      color: #FFC857;
-      opacity: 0.5;
-      margin-bottom: 1rem;
-    }
-
-    .empty-state p {
-      color: #9ba3e0;
-      font-size: 0.9rem;
-    }
-
-    .empty-state p:first-of-type {
-      font-size: 1.1rem;
-      color: #FFE6A3;
       margin-bottom: 0.5rem;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .buy-btn {
+      background: linear-gradient(95deg, #FFC857, #FFAE2B);
+      color: #12142e;
+      border: none;
+      padding: 0.4rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.2s;
+    }
+
+    .buy-btn:hover {
+      background: linear-gradient(95deg, #FFD46E, #FFB83B);
+      transform: scale(0.98);
     }
 
     /* Bottom Navigation */
@@ -267,16 +203,12 @@
 </head>
 <body>
 
-<div class="container">
+<div class="games-container">
   <div class="header">
-    <h1><i class="fas fa-shopping-bag"></i> မိမိ Order များ</h1>
+    <h1><i class="fas fa-gamepad"></i>ဂိမ်းများ</h1>
   </div>
-  <div class="orders-list" id="ordersList">
-    <div class="empty-state">
-      <i class="fas fa-spinner fa-pulse"></i>
-      <p>မှတ်တမ်းများ ရယူနေသည်...</p>
-    </div>
-  </div>
+
+  <div class="game-grid" id="gameGrid"></div>
 </div>
 
 <!-- Bottom Navigation -->
@@ -285,7 +217,7 @@
     <div class="nav-icon">🏠</div>
     <div class="nav-label">ပင်မစာမျက်နှာ</div>
   </button>
-  <button class="nav-item" data-page="games">
+  <button class="nav-item active" data-page="games">
     <div class="nav-icon">🎮</div>
     <div class="nav-label">ဂိမ်းစာမျက်နှာ</div>
   </button>
@@ -293,7 +225,7 @@
     <div class="nav-icon">👛</div>
     <div class="nav-label">ပိုက်ဆံအိတ်</div>
   </button>
-  <button class="nav-item active" data-page="orders">
+  <button class="nav-item" data-page="orders">
     <div class="nav-icon">📦</div>
     <div class="nav-label">မှတ်တမ်းများ</div>
   </button>
@@ -304,7 +236,7 @@
 </div>
 
 <script>
-  // Firebase Configuration
+  // Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyCZridqu0bhTRM5mzbRdfJxWic4xcG7rg4",
   authDomain: "dia-zone.firebaseapp.com",
@@ -315,119 +247,41 @@
   appId: "1:954378673786:web:fe6ab648f60eb5207665c3"
 };
 
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  let currentUser = JSON.parse(localStorage.getItem('diaZoneUser') || sessionStorage.getItem('diaZoneUser') || 'null');
-  
-  if (!currentUser) {
-    window.location.href = 'login.html';
-  }
+  // Games with background classes
+  const GAMES = [
+    { name: "Mobile Legend", bgClass: "ml-bg", link: "ml-diamonds.html" },
+    { name: "Pubg", bgClass: "pubg-bg", link: "pubg-uc.html" },
+    { name: "Genshin Impact", bgClass: "genshin-bg", link: null },
+    { name: "Free Fire", bgClass: "ff-bg", link: null }
+  ];
 
-  const userId = currentUser.id || currentUser.userId;
-
-  function getStatusClass(status) {
-    if (status === 'Completed' || status === 'Approved') return 'status-completed';
-    if (status === 'Cancelled' || status === 'Rejected') return 'status-cancelled';
-    return 'status-pending';
-  }
-
-  function getStatusText(status) {
-    if (status === 'Completed' || status === 'Approved') return '✓ အတည်ပြုပြီး';
-    if (status === 'Cancelled' || status === 'Rejected') return '✗ မအောင်မြင်ပါ';
-    return '⏳ စောင့်ဆိုင်းနေသည်';
-  }
-
-  function formatDate(dateString) {
-    if (!dateString) return 'N/A';
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleString('my-MM', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-    } catch(e) {
-      return dateString;
-    }
-  }
-
-  function renderOrders(ordersData) {
-    const container = document.getElementById('ordersList');
-    
-    if (!ordersData || (Array.isArray(ordersData) && ordersData.length === 0)) {
-      container.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-bag"></i><p>မှတ်တမ်းမရှိသေးပါ</p><p>သင်၏ဝယ်ယူမှုမှတ်တမ်းများ ဤနေရာတွင်ပေါ်ပါမည်</p></div>';
-      return;
-    }
-
-    let orders = [];
-    if (Array.isArray(ordersData)) {
-      orders = [...ordersData];
-    } else {
-      orders = Object.values(ordersData);
-    }
-    
-    orders.reverse();
-    
-    if (orders.length === 0) {
-      container.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-bag"></i><p>မှတ်တမ်းမရှိသေးပါ</p><p>သင်၏ဝယ်ယူမှုမှတ်တမ်းများ ဤနေရာတွင်ပေါ်ပါမည်</p></div>';
-      return;
-    }
-    
-    container.innerHTML = '';
-    orders.forEach(order => {
+  function renderGames() {
+    const grid = document.getElementById('gameGrid');
+    grid.innerHTML = '';
+    GAMES.forEach(game => {
       const card = document.createElement('div');
-      card.className = 'order-card';
-      
-      const orderDate = order.orderDateDisplay || order.date || formatDate(order.orderDate);
-      const gameName = order.game || 'Mobile Legend';
-      const productName = order.product || 'Diamonds';
-      
+      card.className = `game-card ${game.bgClass}`;
       card.innerHTML = `
-        <div class="order-header">
-          <span class="order-id"><i class="fas fa-hashtag"></i> ${order.id || 'ORD-' + Math.floor(Math.random()*10000)}</span>
-          <span class="order-status ${getStatusClass(order.status)}">${getStatusText(order.status)}</span>
+        <div class="game-card-overlay">
+          <div class="game-name">${game.name}</div>
+          <button class="buy-btn">Buy Now</button>
         </div>
-        <div class="order-product"><i class="fas fa-gamepad"></i> ${gameName} - ${productName}</div>
-        <div class="order-details">
-          <span><i class="fas fa-id-card"></i> Game ID: ${order.gameId || 'N/A'}</span>
-          <span><i class="fas fa-server"></i> Server: ${order.serverId || 'N/A'}</span>
-        </div>
-        <div class="order-amount"><i class="fas fa-coins"></i> ${(order.amount || 0).toLocaleString()} ကျပ်</div>
-        <div class="order-date"><i class="far fa-calendar-alt"></i> ${orderDate}</div>
       `;
-      container.appendChild(card);
-    });
-  }
-
-  // Real-time Order Fetching
-  if (userId) {
-    db.ref('orders').orderByChild('userId').equalTo(userId).on('value', (snapshot) => {
-      if (snapshot.exists()) {
-        renderOrders(snapshot.val());
-      } else {
-        renderOrders(null);
-      }
-    });
-  } else {
-    db.ref('orders').on('value', (snapshot) => {
-      if (snapshot.exists()) {
-        const allOrders = snapshot.val();
-        const userOrders = {};
-        Object.keys(allOrders).forEach(key => {
-          const order = allOrders[key];
-          if (order.userPhone === currentUser.phone || order.userEmail === currentUser.email || order.userName === currentUser.name) {
-            userOrders[key] = order;
-          }
-        });
-        if (Object.keys(userOrders).length > 0) {
-          renderOrders(userOrders);
+      card.onclick = (e) => {
+        if (e.target.classList.contains('buy-btn')) e.stopPropagation();
+        if (game.link) {
+          window.location.href = game.link;
         } else {
-          renderOrders(null);
+          alert(game.name + " coming soon!");
         }
-      } else {
-        renderOrders(null);
-      }
+      };
+      grid.appendChild(card);
     });
   }
+  renderGames();
 
   // Navigation
   document.querySelectorAll('.nav-item').forEach(item => {
