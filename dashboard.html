@@ -1,298 +1,542 @@
 <!DOCTYPE html>
 <html lang="my">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>Dia Zone - Games</title>
-  
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-  <script src="https://telegram.org/js/telegram-web-app.js?62"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Dia Zone - Home</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js?62"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-      background-image: url(image/layla.jpg);
-      font-family: 'Inter', 'Poppins', 'Myanmar Text', sans-serif;
-      min-height: 100vh;
-      padding: 1rem;
-      padding-bottom: 85px;
-    }
+        body {
+            background: linear-gradient(145deg, #0b0c1a 0%, #11132a 100%);
+            font-family: 'Inter', 'Poppins', 'Myanmar Text', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            padding-bottom: 85px;
+            background-image: url('image/layla.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
 
-    .games-container {
-      max-width: 550px;
-      margin: 0 auto;
-    }
+        /* Main Card */
+        .game-card {
+            max-width: 550px;
+            width: 100%;
+            background: rgba(18, 2, 8, 0.5)
+            border-radius: 2.5rem;
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            transition: transform 0.2s ease;
+        }
 
-    /* Header */
-    .header {
-      text-align: center;
-      margin-bottom: 1.8rem;
-      padding-top: 0.5rem;
-    }
+        .game-card:hover {
+            transform: scale(1.01);
+        }
 
-    .header h1 {
-      font-size: 1.8rem;
-      font-weight: 800;
-      background: linear-gradient(120deg, #FFF8E7, #FFE6A3);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
+        /* Hero Section */
+        .hero-glow {
+            background: linear-gradient(135deg, rgba(30, 35, 72, 0.9), rgba(12, 15, 36, 0.9));
+            padding: 2rem 1.8rem 1.8rem;
+            border-bottom: 2px solid #ffd966;
+            text-align: center;
+        }
 
-    .header h1 i {
-      background: none;
-      -webkit-background-clip: unset;
-      background-clip: unset;
-      color: #FFC857;
-      margin-right: 10px;
-    }
+        .badge {
+            display: inline-block;
+            background: rgba(255, 215, 0, 0.18);
+            backdrop-filter: blur(4px);
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: #ffdf8c;
+            border: 0.5px solid #ffd966;
+            margin-bottom: 1rem;
+        }
 
-    /* Game Grid */
-    .game-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-    }
+        /* Logo and Title Container */
+        .logo-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 0.5rem;
+        }
 
-    .game-card {
-      position: relative;
-      border-radius: 1.2rem;
-      overflow: hidden;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      aspect-ratio: 1 / 0.9;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 215, 0, 0.2);
-    }
+        /* Circle Logo Style */
+        .circle-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(145deg, #FFC857, #FFAE2B);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background-image: url('image/logo.jpg');
+            background-size: cover;
+            background-position: center;
+        }
 
-    .game-card:hover {
-      transform: translateY(-5px) scale(1.02);
-      box-shadow: 0 20px 35px -8px rgba(0, 0, 0, 0.4);
-      border-color: rgba(255, 215, 0, 0.5);
-    }
+        .circle-logo i {
+            font-size: 2rem;
+            color: #12142e;
+        }
 
-    /* Game Background Images */
-    .game-card.ml-bg {
-      background: linear-gradient(0deg, rgba(0,0,0,0.75), rgba(0,0,0,0.4)), 
-                  url('image/mlbb.jpg');
-      background-size: cover;
-      background-position: center;
-    }
+        h1 {
+            font-size: 2.7rem;
+            font-weight: 800;
+            background: linear-gradient(120deg, #FFF8E7, #FFE6A3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+            margin: 0;
+        }
 
-    .game-card.pubg-bg {
-      background: linear-gradient(0deg, rgba(0,0,0,0.75), rgba(0,0,0,0.4)), 
-                  url('image/pubg.jpg');
-      background-size: cover;
-      background-position: center;
-    }
+        .welcome-block {
+            margin: 1.2rem 0 0.5rem;
+        }
 
-    .game-card.genshin-bg {
-      background: linear-gradient(0deg, rgba(0,0,0,0.75), rgba(0,0,0,0.4)), 
-                  url('image/Genshin.jpg');
-      background-size: cover;
-      background-position: center;
-    }
+        .greeting {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #b9c3ff;
+        }
 
-    .game-card.ff-bg {
-      background: linear-gradient(0deg, rgba(0,0,0,0.75), rgba(0,0,0,0.4)), 
-                  url('image/FreeFire.jpg');
-      background-size: cover;
-      background-position: center;
-    }
+        .username {
+            font-size: 1.9rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFE6B0, #FFC857);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+            margin-top: 0.2rem;
+        }
 
-    .game-card-overlay {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 1rem;
-      background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
-      text-align: center;
-    }
+        .store-tag {
+            font-size: 0.85rem;
+            color: #9ba3e0;
+            margin-top: 0.3rem;
+        }
 
-    .game-name {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #FFE6A3;
-      margin-bottom: 0.5rem;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-    }
+        /* Balance Area */
+        .balance-area {
+            background: rgba(0, 0, 0, 0.5);
+            margin: 1.5rem 1.5rem 0 1.5rem;
+            border-radius: 2rem;
+            padding: 1.3rem 1rem;
+            text-align: center;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 200, 70, 0.3);
+            background-image: url('image/wallet.jpg');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+        }
 
-    .buy-btn {
-      background: linear-gradient(95deg, #FFC857, #FFAE2B);
-      color: #12142e;
-      border: none;
-      padding: 0.4rem 1rem;
-      border-radius: 2rem;
-      font-size: 0.7rem;
-      font-weight: 700;
-      cursor: pointer;
-      width: 100%;
-      transition: all 0.2s;
-    }
+        .balance-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #b7c0ff;
+        }
 
-    .buy-btn:hover {
-      background: linear-gradient(95deg, #FFD46E, #FFB83B);
-      transform: scale(0.98);
-    }
+        .balance-value {
+            font-size: 3.2rem;
+            font-weight: 800;
+            background: linear-gradient(145deg, #FFE6AA, #FFCF6E);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+        }
 
-    /* Bottom Navigation */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(10, 12, 28, 0.95);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding: 0.6rem 1rem;
-      border-top: 1px solid rgba(255, 215, 0, 0.2);
-      max-width: 550px;
-      margin: 0 auto;
-      z-index: 100;
-    }
+        .currency {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #FFDA88;
+        }
 
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 6px 12px;
-      border-radius: 1.2rem;
-      transition: all 0.2s;
-      font-family: inherit;
-    }
+        /* CTA Button - Bigger Size */
+        .browse-btn {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(95deg, #FFC857, #FFAE2B);
+            margin: 1.8rem 1.5rem 0.5rem 1.5rem;
+            padding: 1.2rem 2rem;
+            border-radius: 60px;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: white;
+            transition: all 0.2s;
+            box-shadow: 0 10px 18px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 200, 0.6);
+            background-image: url('image/game.jpg');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+        }
 
-    .nav-icon {
-      font-size: 1.4rem;
-    }
+        .browse-btn span:first-child {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-    .nav-label {
-      font-size: 0.7rem;
-      font-weight: 500;
-      color: #a3abdf;
-      letter-spacing: 0.3px;
-    }
+        .browse-btn span:first-child i {
+            font-size: 1.6rem;
+        }
 
-    .nav-item.active .nav-label {
-      color: #FFD966;
-      font-weight: 600;
-    }
+        .browse-btn span:last-child {
+            font-size: 1.8rem;
+            transition: transform 0.2s;
+        }
 
-    .nav-item.active .nav-icon {
-      color: #FFD966;
-    }
+        .browse-btn:hover {
+            background: linear-gradient(95deg, #FFD46E, #FFB83B);
+            transform: scale(1.02);
+        }
 
-    .nav-item:hover {
-      background: rgba(255, 215, 0, 0.08);
-      transform: translateY(-2px);
-    }
-  </style>
+        .browse-btn:hover span:last-child {
+            transform: translateX(8px);
+        }
+
+        /* Bottom Navigation - Fixed at bottom */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 12, 28, 0.95);
+            backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0.6rem 1rem;
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+            max-width: 550px;
+            margin: 0 auto;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 1.2rem;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .nav-icon {
+            font-size: 1.4rem;
+        }
+
+        .nav-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #a3abdf;
+            letter-spacing: 0.3px;
+        }
+
+        .nav-item.active .nav-label {
+            color: #FFD966;
+            font-weight: 600;
+        }
+
+        .nav-item.active .nav-icon {
+            color: #FFD966;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 215, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        /* Logout Button */
+        .logout-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0.8rem 1rem 1rem 1rem;
+        }
+
+        .logout-btn {
+            background: rgba(255, 70, 70, 0.15);
+            border: 1px solid rgba(255, 110, 110, 0.4);
+            padding: 0.7rem 2rem;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #ffaeae;
+            cursor: pointer;
+            transition: 0.2s;
+            backdrop-filter: blur(4px);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-family: inherit;
+            width: auto;
+            min-width: 140px;
+            justify-content: center;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 80, 80, 0.3);
+            color: #fff0f0;
+            border-color: #ff8a8a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 70, 70, 0.2);
+        }
+
+        /* footer */
+        .footer-note {
+            text-align: center;
+            font-size: 0.65rem;
+            color: #4c5290;
+            padding: 1rem 1rem 1.5rem;
+        }
+
+        hr {
+            border-color: rgba(255, 215, 0, 0.1);
+            margin: 0 1rem;
+        }
+
+        @media (max-width: 550px) {
+            body {
+                padding: 1rem;
+                padding-bottom: 85px;
+            }
+            .circle-logo {
+                width: 50px;
+                height: 50px;
+            }
+            .circle-logo i {
+                font-size: 1.6rem;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .username {
+                font-size: 1.5rem;
+            }
+            .balance-value {
+                font-size: 2.6rem;
+            }
+            .logout-btn {
+                padding: 0.6rem 1.5rem;
+                font-size: 0.85rem;
+                min-width: 120px;
+            }
+            .browse-btn {
+                padding: 1rem 1.5rem;
+                font-size: 1.1rem;
+                margin: 1.5rem 1rem 0.5rem 1rem;
+            }
+            .browse-btn span:first-child i {
+                font-size: 1.3rem;
+            }
+            .browse-btn span:last-child {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="game-card">
+        <!-- Hero -->
+        <div class="hero-glow">
+            <div class="badge">✨ PREMIUM ZONE ✨</div>
+            
+            <!-- Logo with Title -->
+            <div class="logo-title">
+                <div class="circle-logo">
+                    <i class="fas fa-gem"></i>
+                </div>
+                <h1>Dia Zone</h1>
+            </div>
+            
+            <div class="welcome-block">
+                <div class="greeting">မှ ကြိုဆိုပါတယ်...</div>
+                <div class="username" id="displayUserName">Joker</div>
+                <div class="store-tag">⚡ Game items များကို ယုံကြည်စိတ်ချစွာ ဝယ်ယူနိုင်ပါသည် ⚡</div>
+            </div>
+        </div>
 
-<div class="games-container">
-  <div class="header">
-    <h1><i class="fas fa-gamepad"></i>ဂိမ်းများ</h1>
-  </div>
+        <!-- Balance Area -->
+        <div class="balance-area">
+            <div class="balance-label">လက်ကျန်ငွေ</div>
+            <div class="balance-value" id="displayUserBalance">
+                0 <span class="currency">ကျပ်</span>
+            </div>
+        </div>
 
-  <div class="game-grid" id="gameGrid"></div>
-</div>
+        <!-- Browse All Games Button - Bigger -->
+        <a href="games.html" class="browse-btn" id="browseBtn">
+            <span><i class="fas fa-gamepad"></i> ဂိမ်းများစာရင်း</span>
+            <span>→</span>
+        </a>
 
-<!-- Bottom Navigation -->
-<div class="bottom-nav">
-  <button class="nav-item" data-page="home">
-    <div class="nav-icon">🏠</div>
-    <div class="nav-label">ပင်မစာမျက်နှာ</div>
-  </button>
-  <button class="nav-item active" data-page="games">
-    <div class="nav-icon">🎮</div>
-    <div class="nav-label">ဂိမ်းစာမျက်နှာ</div>
-  </button>
-  <button class="nav-item" data-page="wallet">
-    <div class="nav-icon">👛</div>
-    <div class="nav-label">ပိုက်ဆံအိတ်</div>
-  </button>
-  <button class="nav-item" data-page="orders">
-    <div class="nav-icon">📦</div>
-    <div class="nav-label">မှတ်တမ်းများ</div>
-  </button>
-  <button class="nav-item" data-page="profile">
-    <div class="nav-icon">👤</div>
-    <div class="nav-label">ပရိုဖိုင်</div>
-  </button>
-</div>
+        <!-- Logout Button -->
+        <div class="logout-center">
+            <button class="logout-btn" id="logoutBtn">
+                🚪 ထွက်မည်
+            </button>
+        </div>
 
-<script>
-  // Firebase Config
-  const firebaseConfig = {
-    apiKey: "AIzaSyCZridqu0bhTRM5mzbRdfJxWic4xcG7rg4",
-  authDomain: "dia-zone.firebaseapp.com",
-  databaseURL: "https://dia-zone-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "dia-zone",
-  storageBucket: "dia-zone.firebasestorage.app",
-  messagingSenderId: "954378673786",
-  appId: "1:954378673786:web:fe6ab648f60eb5207665c3"
+        <hr />
+        <div class="footer-note">
+            Dia Zone &nbsp;|&nbsp; အကောင်းဆုံးဂိမ်းများ
+        </div>
+    </div>
+
+    <!-- Bottom Navigation - Fixed at bottom -->
+    <div class="bottom-nav">
+        <button class="nav-item active" data-page="home">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">ပင်မစာမျက်နှာ</div>
+        </button>
+        <button class="nav-item" data-page="game">
+            <div class="nav-icon">🎮</div>
+            <div class="nav-label">ဂိမ်းစာမျက်နှာ</div>
+        </button>
+        <button class="nav-item" data-page="wallet">
+            <div class="nav-icon">👛</div>
+            <div class="nav-label">ပိုက်ဆံအိတ်</div>
+        </button>
+        <button class="nav-item" data-page="orders">
+            <div class="nav-icon">📦</div>
+            <div class="nav-label">မှတ်တမ်းများ</div>
+        </button>
+        <button class="nav-item" data-page="profile">
+            <div class="nav-icon">👤</div>
+            <div class="nav-label">ပရိုဖိုင်</div>
+        </button>
+    </div>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCZridqu0bhTRM5mzbRdfJxWic4xcG7rg4",
+    authDomain: "dia-zone.firebaseapp.com",
+    databaseURL: "https://dia-zone-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "dia-zone",
+    storageBucket: "dia-zone.firebasestorage.app",
+    messagingSenderId: "954378673786",
+    appId: "1:954378673786:web:fe6ab648f60eb5207665c3"
 };
 
-  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-
-  // Games with background classes
-  const GAMES = [
-    { name: "Mobile Legend", bgClass: "ml-bg", link: "ml-diamonds.html" },
-    { name: "Pubg", bgClass: "pubg-bg", link: "pubg-uc.html" },
-    { name: "Genshin Impact", bgClass: "genshin-bg", link: null },
-    { name: "Free Fire", bgClass: "ff-bg", link: null }
-  ];
-
-  function renderGames() {
-    const grid = document.getElementById('gameGrid');
-    grid.innerHTML = '';
-    GAMES.forEach(game => {
-      const card = document.createElement('div');
-      card.className = `game-card ${game.bgClass}`;
-      card.innerHTML = `
-        <div class="game-card-overlay">
-          <div class="game-name">${game.name}</div>
-          <button class="buy-btn">Buy Now</button>
-        </div>
-      `;
-      card.onclick = (e) => {
-        if (e.target.classList.contains('buy-btn')) e.stopPropagation();
-        if (game.link) {
-          window.location.href = game.link;
-        } else {
-          alert(game.name + " coming soon!");
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
         }
-      };
-      grid.appendChild(card);
-    });
-  }
-  renderGames();
+        const db = firebase.database();
 
-  // Navigation
-  document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const page = item.dataset.page;
-      if (page === 'home') window.location.href = 'dashboard.html';
-      else if (page === 'games') window.location.href = 'games.html';
-      else if (page === 'wallet') window.location.href = 'wallet.html';
-      else if (page === 'orders') window.location.href = 'orders.html';
-      else if (page === 'profile') window.location.href = 'profile.html';
-    });
-  });
-</script>
+        // Get current user
+        let currentUser = JSON.parse(localStorage.getItem('diaZoneUser') || sessionStorage.getItem('diaZoneUser') || 'null');
+        
+        if (!currentUser) {
+            window.location.href = 'login.html';
+        }
+
+        const userId = currentUser.id || currentUser.userId;
+
+        // Display user info
+        function displayUserInfo(data) {
+            document.getElementById('displayUserName').textContent = data.name || 'User';
+            document.getElementById('displayUserBalance').innerHTML = (data.balance || 0).toLocaleString() + ' <span class="currency">ကျပ်</span>';
+        }
+
+        // Real-time user data
+        if (userId) {
+            db.ref('users/' + userId).on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    currentUser = { ...currentUser, ...data, id: userId };
+                    localStorage.setItem('diaZoneUser', JSON.stringify(currentUser));
+                    sessionStorage.setItem('diaZoneUser', JSON.stringify(currentUser));
+                    displayUserInfo(data);
+                } else {
+                    displayUserInfo(currentUser);
+                }
+            });
+        } else {
+            displayUserInfo(currentUser);
+        }
+
+        // Navigation Buttons
+        const navButtons = document.querySelectorAll('.nav-item');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        function navigateTo(page) {
+            let targetPage = '';
+            switch(page) {
+                case 'home':
+                    targetPage = 'dashboard.html';
+                    break;
+                case 'game':
+                    targetPage = 'games.html';
+                    break;
+                case 'wallet':
+                    targetPage = 'wallet.html';
+                    break;
+                case 'orders':
+                    targetPage = 'orders.html';
+                    break;
+                case 'profile':
+                    targetPage = 'profile.html';
+                    break;
+                default:
+                    return;
+            }
+            window.location.href = targetPage;
+        }
+
+        navButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const page = btn.getAttribute('data-page');
+                navigateTo(page);
+            });
+        });
+
+        // Logout
+        if(logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.removeItem('diaZoneUser');
+                sessionStorage.removeItem('diaZoneUser');
+                alert("🔓 ထွက်ခွာမည်။ login page သို့ ပြန်သွားပါမည်။");
+                window.location.href = "login.html";
+            });
+        }
+    </script>
 </body>
 </html>
