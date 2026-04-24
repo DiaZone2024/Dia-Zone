@@ -93,16 +93,16 @@
       background-position: center;
     }
 
-    .game-card.genshin-bg {
+    .game-card.premium-bg {
       background: linear-gradient(0deg, rgba(0,0,0,0.75), rgba(0,0,0,0.4)), 
-                  url('image/Genshin.jpg');
+                  url('image/premium.jpg');
       background-size: cover;
       background-position: center;
     }
 
-    .game-card.ff-bg {
+    .game-card.mcgg-bg {
       background: linear-gradient(0deg, rgba(0,0,0,0.75), rgba(0,0,0,0.4)), 
-                  url('image/FreeFire.jpg');
+                  url('image/MCGG.jpg');
       background-size: cover;
       background-position: center;
     }
@@ -238,13 +238,13 @@
   // Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyCZridqu0bhTRM5mzbRdfJxWic4xcG7rg4",
-  authDomain: "dia-zone.firebaseapp.com",
-  databaseURL: "https://dia-zone-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "dia-zone",
-  storageBucket: "dia-zone.firebasestorage.app",
-  messagingSenderId: "954378673786",
-  appId: "1:954378673786:web:fe6ab648f60eb5207665c3"
-};
+    authDomain: "dia-zone.firebaseapp.com",
+    databaseURL: "https://dia-zone-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "dia-zone",
+    storageBucket: "dia-zone.firebasestorage.app",
+    messagingSenderId: "954378673786",
+    appId: "1:954378673786:web:fe6ab648f60eb5207665c3"
+  };
 
   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
@@ -253,8 +253,8 @@
   const GAMES = [
     { name: "Mobile Legend", bgClass: "ml-bg", link: "ml-diamonds.html" },
     { name: "Pubg", bgClass: "pubg-bg", link: "pubg-uc.html" },
-    { name: "Genshin Impact", bgClass: "genshin-bg", link: null },
-    { name: "Free Fire", bgClass: "ff-bg", link: null }
+    { name: "Premium Service", bgClass: "premium-bg", link: "premium.html" },
+    { name: "MCGG", bgClass: "mcgg-bg", link: "mcgg.html" }
   ];
 
   function renderGames() {
