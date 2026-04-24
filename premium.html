@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Dia Zone - Premium Service</title>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js?62"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #0b0c1a 0%, #11132a 100%);
+      font-family: 'Inter', 'Poppins', 'Myanmar Text', sans-serif;
+      min-height: 100vh;
+      padding-bottom: 85px;
+      background-image: url('image/layla.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    .container {
+      max-width: 550px;
+      margin: 0 auto;
+      background: rgba(18, 22, 48, 0.75);
+      backdrop-filter: blur(12px);
+      min-height: 100vh;
+      border-radius: 2rem;
+      box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, rgba(30, 35, 72, 0.9), rgba(12, 15, 36, 0.9));
+      padding: 1rem 1.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #ffd966;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .logo h1 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      background: linear-gradient(120deg, #FFF8E7, #FFE6A3);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .back-btn {
+      background: rgba(255, 215, 0, 0.15);
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      color: #FFE6A3;
+      font-size: 0.85rem;
+      cursor: pointer;
+      padding: 0.4rem 1rem;
+      border-radius: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 215, 0, 0.25);
+      transform: translateX(-3px);
+    }
+
+    .title-section {
+      padding: 1.5rem 1.2rem 0.5rem;
+    }
+
+    .title-section h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(120deg, #FFF8E7, #FFE6A3);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .title-section h2 i {
+      color: #FFC857;
+      margin-right: 8px;
+    }
+
+    .section-title {
+      padding: 1rem 1.2rem 0.5rem;
+    }
+
+    .section-title h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #FFE6A3;
+      border-left: 4px solid #FFC857;
+      padding-left: 0.8rem;
+    }
+
+    /* Product Grid */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.8rem;
+      padding: 0.8rem 1.2rem;
+    }
+
+    .product-card {
+      position: relative;
+      background: rgba(10, 12, 28, 0.7);
+      backdrop-filter: blur(8px);
+      border-radius: 1rem;
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      border: 1px solid rgba(255, 215, 0, 0.2);
+      transition: all 0.2s;
+      overflow: hidden;
+    }
+
+    /* Background image for Telegram Premium */
+    .product-card.telegram-premium-bg {
+      background-image: url('image/pre.jpg');
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* Background image for Telegram Star */
+    .product-card.telegram-star-bg {
+      background-image: url('image/star.jpg');
+      background-size: cover;
+      background-position: center;
+    }
+
+    .product-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 0;
+      border-radius: 1rem;
+    }
+
+    .product-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .product-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      border-color: rgba(255, 215, 0, 0.5);
+    }
+
+    .product-icon {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(145deg, #FFC857, #FFAE2B);
+      border-radius: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.5rem;
+    }
+
+    .product-icon i {
+      font-size: 1.5rem;
+      color: #12142e;
+    }
+
+    .product-name {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #FFE6A3;
+    }
+
+    .price-row {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 0.3rem;
+    }
+
+    .current-price {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #FFC857;
+    }
+
+    .buy-btn {
+      background: linear-gradient(95deg, #FFC857, #FFAE2B);
+      color: #12142e;
+      border: none;
+      padding: 0.4rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      width: 100%;
+      transition: all 0.2s;
+    }
+
+    .buy-btn:hover {
+      transform: scale(0.98);
+      background: linear-gradient(95deg, #FFD46E, #FFB83B);
+    }
+
+    .footer-links {
+      padding: 1rem 1.2rem;
+      text-align: center;
+      border-top: 1px solid rgba(255, 215, 0, 0.1);
+      margin-top: 1rem;
+    }
+
+    .footer-links a {
+      color: #9ba3e0;
+      text-decoration: none;
+      font-size: 0.7rem;
+      margin: 0 0.5rem;
+    }
+
+    .footer-links span {
+      color: #4c5290;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 12, 28, 0.95);
+      backdrop-filter: blur(12px);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0.6rem 1rem;
+      border-top: 1px solid rgba(255, 215, 0, 0.2);
+      max-width: 550px;
+      margin: 0 auto;
+      z-index: 100;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 1.2rem;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .nav-icon {
+      font-size: 1.4rem;
+    }
+
+    .nav-label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #a3abdf;
+      letter-spacing: 0.3px;
+    }
+
+    .nav-item.active .nav-label {
+      color: #FFD966;
+      font-weight: 600;
+    }
+
+    .nav-item.active .nav-icon {
+      color: #FFD966;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 215, 0, 0.08);
+      transform: translateY(-2px);
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #1a1e3a;
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 400px;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-content h3 {
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      color: #FFE6A3;
+      text-align: center;
+    }
+
+    .modal-content h3 i {
+      color: #FFC857;
+      margin-right: 8px;
+    }
+
+    #modalProductInfo {
+      margin-bottom: 1rem;
+      font-weight: 700;
+      color: #FFC857;
+      text-align: center;
+      padding: 0.5rem;
+      background: rgba(255, 215, 0, 0.1);
+      border-radius: 0.8rem;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      border-radius: 0.8rem;
+      background: #0f122e;
+      color: white;
+    }
+
+    .modal-content input:focus {
+      outline: none;
+      border-color: #FFC857;
+    }
+
+    .modal-content input::placeholder {
+      color: #6c72a5;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .modal-buttons button {
+      flex: 1;
+      padding: 0.8rem;
+      border-radius: 2rem;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .order-now-btn {
+      background: linear-gradient(95deg, #FFC857, #FFAE2B);
+      color: #12142e;
+    }
+
+    .cancel-order-btn {
+      background: rgba(255, 255, 255, 0.1);
+      color: #b9c3ff;
+    }
+
+    .error-msg {
+      color: #ff6b6b;
+      font-size: 0.75rem;
+      display: none;
+      margin-bottom: 0.8rem;
+      text-align: center;
+    }
+
+    .error-msg.show {
+      display: block;
+    }
+
+    .processing-toast, .success-toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border-radius: 2rem;
+      font-size: 0.8rem;
+      z-index: 1000;
+      display: none;
+    }
+
+    .processing-toast {
+      background: #f59e0b;
+    }
+
+    .success-toast {
+      background: #10b981;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <button class="back-btn" id="backBtn"><i class="fas fa-arrow-left"></i> နောက်သို့</button>
+    <div class="logo"><h1>Dia Zone</h1></div>
+    <div style="width:60px;"></div>
+  </div>
+  
+  <div class="title-section">
+    <h2><i class="fas fa-crown"></i> Premium Service</h2>
+  </div>
+  
+  <div class="section-title"><h3><i class="fab fa-telegram"></i> Telegram Premium</h3></div>
+  <div class="product-grid" id="telegramPremiumGrid"></div>
+  
+  <div class="section-title"><h3><i class="fas fa-star"></i> Telegram Star</h3></div>
+  <div class="product-grid" id="telegramStarGrid"></div>
+  
+  <div class="footer-links">
+    <a href="#">Privacy Policy</a><span>|</span><a href="#">Terms & Conditions</a>
+  </div>
+</div>
+
+<!-- Bottom Navigation -->
+<div class="bottom-nav">
+  <button class="nav-item" data-page="home">
+    <div class="nav-icon">🏠</div>
+    <div class="nav-label">ပင်မစာမျက်နှာ</div>
+  </button>
+  <button class="nav-item" data-page="games">
+    <div class="nav-icon">🎮</div>
+    <div class="nav-label">ဂိမ်းစာမျက်နှာ</div>
+  </button>
+  <button class="nav-item" data-page="wallet">
+    <div class="nav-icon">👛</div>
+    <div class="nav-label">ပိုက်ဆံအိတ်</div>
+  </button>
+  <button class="nav-item" data-page="orders">
+    <div class="nav-icon">📦</div>
+    <div class="nav-label">မှတ်တမ်းများ</div>
+  </button>
+  <button class="nav-item" data-page="profile">
+    <div class="nav-icon">👤</div>
+    <div class="nav-label">ပရိုဖိုင်</div>
+  </button>
+</div>
+
+<!-- Order Modal -->
+<div id="orderModal" class="modal">
+  <div class="modal-content">
+    <h3><i class="fas fa-shopping-cart"></i> အော်ဒါအပြီးသတ်ရန်</h3>
+    <div id="modalProductInfo" style="margin-bottom: 1rem; font-weight: 600;"></div>
+    <input type="text" id="telegramId" placeholder="Telegram Username / User ID">
+    <div id="modalError" class="error-msg"></div>
+    <div class="modal-buttons">
+      <button class="cancel-order-btn" id="cancelOrderBtn">မလုပ်တော့ပါ</button>
+      <button class="order-now-btn" id="confirmOrderBtn">အော်ဒါယူမည်</button>
+    </div>
+  </div>
+</div>
+
+<div id="processingToast" class="processing-toast"><i class="fas fa-spinner fa-pulse"></i> လုပ်ဆောင်နေသည်... စောင့်ပါ</div>
+<div id="successToast" class="success-toast"><i class="fas fa-check-circle"></i> အော်ဒါအောင်မြင်ပါသည်</div>
+
+<script>
+  // Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCZridqu0bhTRM5mzbRdfJxWic4xcG7rg4",
+    authDomain: "dia-zone.firebaseapp.com",
+    databaseURL: "https://dia-zone-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "dia-zone",
+    storageBucket: "dia-zone.firebasestorage.app",
+    messagingSenderId: "954378673786",
+    appId: "1:954378673786:web:fe6ab648f60eb5207665c3"
+  };
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  const db = firebase.database();
+
+  // Default Premium Prices
+  const DEFAULT_PREMIUM_PRICES = {
+    telegramPremium: [
+      { name: "3 Months", price: 45000 },
+      { name: "6 Months", price: 85000 },
+      { name: "1 Year", price: 150000 }
+    ],
+    telegramStar: [
+      { name: "50 Stars", price: 5000 },
+      { name: "100 Stars", price: 9500 },
+      { name: "500 Stars", price: 45000 }
+    ]
+  };
+
+  let currentUser = null;
+  let selectedProduct = null;
+  let selectedCategory = null;
+  let premiumPrices = null;
+  let userId = null;
+
+  function formatNumber(num) { return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+
+  function loadUserData() {
+    currentUser = JSON.parse(localStorage.getItem('diaZoneUser') || sessionStorage.getItem('diaZoneUser') || 'null');
+    if (!currentUser) {
+      window.location.href = 'login.html';
+      return false;
+    }
+    return true;
+  }
+
+  function renderTelegramPremium() {
+    const grid = document.getElementById('telegramPremiumGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    const items = premiumPrices?.telegramPremium || DEFAULT_PREMIUM_PRICES.telegramPremium;
+    items.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'product-card telegram-premium-bg';
+      card.innerHTML = `
+        <div class="product-icon"><i class="fab fa-telegram"></i></div>
+        <div class="product-name">${item.name}</div>
+        <div class="price-row"><span class="current-price">${formatNumber(item.price)} Ks</span></div>
+        <button class="buy-btn">ဝယ်ယူမည်</button>
+      `;
+      card.onclick = () => openOrderModal(item, item.name, 'Telegram Premium');
+      grid.appendChild(card);
+    });
+  }
+
+  function renderTelegramStar() {
+    const grid = document.getElementById('telegramStarGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    const items = premiumPrices?.telegramStar || DEFAULT_PREMIUM_PRICES.telegramStar;
+    items.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'product-card telegram-star-bg';
+      card.innerHTML = `
+        <div class="product-icon"><i class="fas fa-star"></i></div>
+        <div class="product-name">${item.name}</div>
+        <div class="price-row"><span class="current-price">${formatNumber(item.price)} Ks</span></div>
+        <button class="buy-btn">ဝယ်ယူမည်</button>
+      `;
+      card.onclick = () => openOrderModal(item, item.name, 'Telegram Star');
+      grid.appendChild(card);
+    });
+  }
+
+  function renderUI() {
+    renderTelegramPremium();
+    renderTelegramStar();
+  }
+
+  function openOrderModal(product, label, category) {
+    if (!currentUser) {
+      window.location.href = 'login.html';
+      return;
+    }
+    selectedProduct = { ...product, label: label, category: category };
+    selectedCategory = category;
+    document.getElementById('modalProductInfo').innerHTML = `${category} - ${label}<br><strong>${formatNumber(product.price)} Ks</strong>`;
+    document.getElementById('telegramId').value = '';
+    document.getElementById('modalError').classList.remove('show');
+    document.getElementById('orderModal').classList.add('show');
+  }
+
+  function closeOrderModal() {
+    document.getElementById('orderModal').classList.remove('show');
+  }
+
+  function generateOrderId() {
+    return 'PREMIUM-' + Date.now().toString() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+  }
+
+  async function placeOrder() {
+    const telegramId = document.getElementById('telegramId').value.trim();
+    const errorDiv = document.getElementById('modalError');
+
+    if (!telegramId) {
+      errorDiv.textContent = "Telegram Username / User ID ထည့်ပါ";
+      errorDiv.classList.add('show');
+      return;
+    }
+
+    if (currentUser.balance < selectedProduct.price) {
+      errorDiv.textContent = "လက်ကျန်ငွေ မလုံလောက်ပါ။ ငွေဖြည့်ပါ";
+      errorDiv.classList.add('show');
+      return;
+    }
+
+    const confirmBtn = document.getElementById('confirmOrderBtn');
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = "လုပ်ဆောင်နေသည်...";
+
+    const orderId = generateOrderId();
+    const newBalance = currentUser.balance - selectedProduct.price;
+    const userId = currentUser.id || currentUser.userId;
+
+    const orderData = {
+      id: orderId,
+      userId: userId,
+      userName: currentUser.name,
+      userPhone: currentUser.phone,
+      userEmail: currentUser.email,
+      game: 'Premium Service',
+      category: selectedCategory,
+      product: selectedProduct.label,
+      amount: selectedProduct.price,
+      telegramId: telegramId,
+      status: 'Pending',
+      orderDate: new Date().toISOString(),
+      orderDateDisplay: new Date().toLocaleString()
+    };
+
+    try {
+      await db.ref('orders/' + orderId).set(orderData);
+      await db.ref('users/' + userId).update({ balance: newBalance });
+      
+      currentUser.balance = newBalance;
+      localStorage.setItem('diaZoneUser', JSON.stringify(currentUser));
+      sessionStorage.setItem('diaZoneUser', JSON.stringify(currentUser));
+      
+      closeOrderModal();
+      
+      const successToast = document.getElementById('successToast');
+      successToast.style.display = 'block';
+      setTimeout(() => {
+        successToast.style.display = 'none';
+        window.location.href = 'orders.html';
+      }, 2000);
+      
+    } catch (error) {
+      errorDiv.textContent = "အော်ဒါမအောင်မြင်ပါ။ ထပ်မံကြိုးစားပါ";
+      errorDiv.classList.add('show');
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = "အော်ဒါယူမည်";
+    }
+  }
+
+  function initFirebaseListeners() {
+    db.ref('prices/premium').on('value', (snapshot) => {
+      if (snapshot.exists()) {
+        premiumPrices = snapshot.val();
+      } else {
+        premiumPrices = DEFAULT_PREMIUM_PRICES;
+        db.ref('prices/premium').set(DEFAULT_PREMIUM_PRICES);
+      }
+      renderUI();
+    });
+    
+    if (currentUser) {
+      const userId = currentUser.id || currentUser.userId;
+      db.ref('users/' + userId).on('value', (snapshot) => {
+        if (snapshot.exists()) {
+          const updatedUser = snapshot.val();
+          currentUser = { ...currentUser, ...updatedUser };
+          localStorage.setItem('diaZoneUser', JSON.stringify(currentUser));
+          sessionStorage.setItem('diaZoneUser', JSON.stringify(currentUser));
+        }
+      });
+    }
+  }
+
+  // Event Listeners
+  document.getElementById('backBtn').onclick = () => window.location.href = 'games.html';
+  document.getElementById('cancelOrderBtn').onclick = closeOrderModal;
+  document.getElementById('confirmOrderBtn').onclick = placeOrder;
+
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const page = item.dataset.page;
+      if (page === 'home') window.location.href = 'dashboard.html';
+      else if (page === 'games') window.location.href = 'games.html';
+      else if (page === 'wallet') window.location.href = 'wallet.html';
+      else if (page === 'orders') window.location.href = 'orders.html';
+      else if (page === 'profile') window.location.href = 'profile.html';
+    });
+  });
+
+  window.onclick = (e) => {
+    const modal = document.getElementById('orderModal');
+    if (e.target === modal) closeOrderModal();
+  };
+
+  if (loadUserData()) {
+    initFirebaseListeners();
+  }
+</script>
+</body>
+</html>
