@@ -146,14 +146,14 @@
     }
 
     /* UC Product Card Background */
-    .uc-card {
+    .product-card.uc-bg {
       background-image: url('image/UC.jpg');
       background-size: cover;
       background-position: center;
     }
 
-    /* Code Product Card Background */
-    .code-card {
+    /* Special Product Card Background */
+    .product-card.special-bg {
       background-image: url('image/code.jpg');
       background-size: cover;
       background-position: center;
@@ -166,7 +166,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.55);
       z-index: 0;
       border-radius: 1rem;
     }
@@ -199,7 +199,7 @@
     }
 
     .product-name {
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       font-weight: 700;
       color: #FFE6A3;
     }
@@ -212,7 +212,7 @@
     }
 
     .current-price {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 700;
       color: #FFC857;
     }
@@ -458,14 +458,14 @@
 
   <div class="tab-buttons">
     <button class="tab-btn active" id="ucTopupTab">💰 UC Top Up</button>
-    <button class="tab-btn" id="codeTab">🎫 Code Price</button>
+    <button class="tab-btn" id="specialTab">✨ Special Items</button>
   </div>
 
   <div id="ucTopupSection">
     <div class="product-grid" id="ucProductGrid"></div>
   </div>
-  <div id="codeSection" style="display:none;">
-    <div class="product-grid" id="codeProductGrid"></div>
+  <div id="specialSection" style="display:none;">
+    <div class="product-grid" id="specialProductGrid"></div>
   </div>
 
   <div class="footer-links">
@@ -519,13 +519,13 @@
   // Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyCZridqu0bhTRM5mzbRdfJxWic4xcG7rg4",
-  authDomain: "dia-zone.firebaseapp.com",
-  databaseURL: "https://dia-zone-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "dia-zone",
-  storageBucket: "dia-zone.firebasestorage.app",
-  messagingSenderId: "954378673786",
-  appId: "1:954378673786:web:fe6ab648f60eb5207665c3"
-};
+    authDomain: "dia-zone.firebaseapp.com",
+    databaseURL: "https://dia-zone-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "dia-zone",
+    storageBucket: "dia-zone.firebasestorage.app",
+    messagingSenderId: "954378673786",
+    appId: "1:954378673786:web:fe6ab648f60eb5207665c3"
+  };
 
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
@@ -538,25 +538,20 @@
       { name: "60 UC", price: 4190 },
       { name: "180 UC", price: 12730 },
       { name: "325 UC", price: 20900 },
-      { name: "445 UC", price: 29500 },
-      { name: "1320 UC", price: 82600 },
       { name: "1800 UC", price: 107500 },
-      { name: "2785 UC", price: 171100 },
-      { name: "3850 UC", price: 208000 },
-      { name: "5650 UC", price: 316500 },
       { name: "8100 UC", price: 411000 }
     ],
-    code: [
-      { name: "60 UC Code", price: 4190 },
-      { name: "180 UC Code", price: 12730 },
-      { name: "325 UC Code", price: 20900 },
-      { name: "445 UC Code", price: 29500 },
-      { name: "1320 UC Code", price: 82600 },
-      { name: "1800 UC Code", price: 107500 },
-      { name: "2785 UC Code", price: 171100 },
-      { name: "3850 UC Code", price: 208000 },
-      { name: "5650 UC Code", price: 316500 },
-      { name: "8100 UC Code", price: 411000 }
+    special: [
+      { name: "First Purchase (170 UC + 90 AG)", price: 12500 },
+      { name: "Materials (180 UC + Materials 9)", price: 15000 },
+      { name: "Mythic Emblem (300 UC + Mythic 79)", price: 25000 },
+      { name: "Prime 1M (60 UC + 3 UC 30days)", price: 5000 },
+      { name: "Prime Plus 1M (660 UC + 8 UC 30days)", price: 45000 },
+      { name: "Weekly Mythic Pack (1 Mythic Emblem)", price: 3500 },
+      { name: "Weekly Deal Pack (30 UC + Classic Create×2 + Supply Create×2)", price: 4000 },
+      { name: "Elite Pass Level 50", price: 35000 },
+      { name: "Elite Pass Level 100", price: 65000 },
+      { name: "Elite Pass Plus Level 100", price: 85000 }
     ]
   };
 
@@ -570,13 +565,14 @@
   function renderProducts() {
     const prices = pubgPrices || DEFAULT_PUBG_PRICES;
     
+    // UC Top Up
     const ucGrid = document.getElementById('ucProductGrid');
     if (ucGrid) {
       ucGrid.innerHTML = '';
       if (prices.uc && prices.uc.length > 0) {
         prices.uc.forEach(item => {
           const card = document.createElement('div'); 
-          card.className = 'product-card uc-card';
+          card.className = 'product-card uc-bg';
           card.innerHTML = `
             <div class="product-icon"><i class="fas fa-coins"></i></div>
             <div class="product-name">${item.name}</div>
@@ -592,24 +588,25 @@
       }
     }
 
-    const codeGrid = document.getElementById('codeProductGrid');
-    if (codeGrid) {
-      codeGrid.innerHTML = '';
-      if (prices.code && prices.code.length > 0) {
-        prices.code.forEach(item => {
+    // Special Items
+    const specialGrid = document.getElementById('specialProductGrid');
+    if (specialGrid) {
+      specialGrid.innerHTML = '';
+      if (prices.special && prices.special.length > 0) {
+        prices.special.forEach(item => {
           const card = document.createElement('div'); 
-          card.className = 'product-card code-card';
+          card.className = 'product-card special-bg';
           card.innerHTML = `
-            <div class="product-icon"><i class="fas fa-ticket-alt"></i></div>
+            <div class="product-icon"><i class="fas fa-star"></i></div>
             <div class="product-name">${item.name}</div>
             <div class="price-row"><span class="current-price">${formatNumber(item.price)} Ks</span></div>
             <button class="buy-btn">ဝယ်ယူမည်</button>
           `;
           card.onclick = (e) => {
             if (e.target.classList.contains('buy-btn')) e.stopPropagation();
-            openOrderModal(item, 'UC Code');
+            openOrderModal(item, 'Special Item');
           };
-          codeGrid.appendChild(card);
+          specialGrid.appendChild(card);
         });
       }
     }
@@ -650,7 +647,7 @@
       return; 
     }
     selectedProduct = { ...product, type: type };
-    document.getElementById('modalProductInfo').innerHTML = `<i class="fas fa-coins"></i> ${product.name} (${type})<br><strong>${formatNumber(product.price)} Ks</strong>`;
+    document.getElementById('modalProductInfo').innerHTML = `<i class="fas fa-coins"></i> ${product.name}<br><strong>${formatNumber(product.price)} Ks</strong>`;
     document.getElementById('pubgId').value = '';
     document.getElementById('ignName').value = '';
     document.getElementById('modalError').classList.remove('show');
@@ -728,47 +725,47 @@
       }, 2000);
       
     } catch (error) {
-      errorDiv.textContent = 'အော်ဒါမအောင်မြင်ပါ။ ထပ်မံကြိုးစားပါ';
-      errorDiv.classList.add('show');
-      confirmBtn.disabled = false;
-      confirmBtn.textContent = 'အော်ဒါယူမည်';
-    }
-  }
+  errorDiv.textContent = 'အော်ဒါမအောင်မြင်ပါ။ ထပ်မံကြိုးစားပါ';
+  errorDiv.classList.add('show');
+  confirmBtn.disabled = false;
+  confirmBtn.textContent = 'အော်ဒါယူမည်';
+}
+}
 
-    // Tab Logic
+// Tab Logic
 document.getElementById('ucTopupTab').onclick = () => {
-    document.getElementById('ucTopupTab').classList.add('active');
-    document.getElementById('codeTab').classList.remove('active');
-    document.getElementById('ucTopupSection').style.display = 'block';
-    document.getElementById('codeSection').style.display = 'none';
-  };
-  document.getElementById('codeTab').onclick = () => {
-    document.getElementById('codeTab').classList.add('active');
-    document.getElementById('ucTopupTab').classList.remove('active');
-    document.getElementById('ucTopupSection').style.display = 'none';
-    document.getElementById('codeSection').style.display = 'block';
-  };
+  document.getElementById('ucTopupTab').classList.add('active');
+  document.getElementById('specialTab').classList.remove('active');
+  document.getElementById('ucTopupSection').style.display = 'block';
+  document.getElementById('specialSection').style.display = 'none';
+};
+document.getElementById('specialTab').onclick = () => {
+  document.getElementById('specialTab').classList.add('active');
+  document.getElementById('ucTopupTab').classList.remove('active');
+  document.getElementById('ucTopupSection').style.display = 'none';
+  document.getElementById('specialSection').style.display = 'block';
+};
 
-  // Navigation
-  document.getElementById('backBtn').onclick = () => window.location.href = 'games.html';
-  document.getElementById('cancelOrderBtn').onclick = closeOrderModal;
-  document.getElementById('confirmOrderBtn').onclick = placeOrder;
+// Navigation
+document.getElementById('backBtn').onclick = () => window.location.href = 'games.html';
+document.getElementById('cancelOrderBtn').onclick = closeOrderModal;
+document.getElementById('confirmOrderBtn').onclick = placeOrder;
 
-  window.onclick = (e) => {
-    const modal = document.getElementById('orderModal');
-    if (e.target === modal) closeOrderModal();
-  };
+window.onclick = (e) => {
+  const modal = document.getElementById('orderModal');
+  if (e.target === modal) closeOrderModal();
+};
 
-  document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const page = item.dataset.page;
-      if (page === 'home') window.location.href = 'dashboard.html';
-      else if (page === 'games') window.location.href = 'games.html';
-      else if (page === 'wallet') window.location.href = 'wallet.html';
-      else if (page === 'orders') window.location.href = 'orders.html';
-      else if (page === 'profile') window.location.href = 'profile.html';
-    });
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const page = item.dataset.page;
+    if (page === 'home') window.location.href = 'dashboard.html';
+    else if (page === 'games') window.location.href = 'games.html';
+    else if (page === 'wallet') window.location.href = 'wallet.html';
+    else if (page === 'orders') window.location.href = 'orders.html';
+    else if (page === 'profile') window.location.href = 'profile.html';
   });
-</script>
-</body>
-</html>
+});
+</script> <
+/body> <
+/html>
